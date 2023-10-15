@@ -1,49 +1,76 @@
-import React from 'react'
-import styled from 'styled-components'
-import Button from '../components/elements/Button'
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import Button from '../components/elements/Button';
 import { FcGoogle } from 'react-icons/fc';
 import { BsFacebook } from 'react-icons/bs';
+import axios from 'axios';
+import InputField from '../components/elements/InputField';
+import { Link } from 'react-router-dom'
 
 function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const clearError = () => {
+    setError('');
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+    clearError();
+
+    try {
+      const {data} = await axios.post('http://localhost:3000/api/v1/auth/login', {email, password})
+      console.log(data);
+    } catch (error) {
+      const err = error.response.data.msg + ".";
+      setError(err);
+    }
+  }
+
   return (
       <LoginWrapper>
         <LoginContainer>
-          <LoginForm>
+          <LoginForm onSubmit={handleSubmit}>
             <Title>Sign in</Title>
             <SingleInputContainer>
-              <InputField type="text" name="email" placeholder="Email" />
+              <InputField type="text" name="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} $err={error} />
             </SingleInputContainer>
             <SingleInputContainer>
-              <InputField type="password" name="password" placeholder="Password" />
+              <InputField type="password" name="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} $err={error}/>
             </SingleInputContainer>
             <RememberMeContainer>
               <input type="checkbox" name="remember-me"/>
               <label>Remember me</label>
             </RememberMeContainer>
-            <Button
-              $content="LOGIN"
-              $size="wide"
-              $shape="squared"
-              $color="primary"
-              $fontColor="white"
-              $animation="scale"
-            ></Button>
+            <SubmitButtonContainer>
+              <Button
+                $content="Sign in"
+                $size="wide"
+                $shape="squared"
+                $color="primary"
+                $fontColor="white"
+                $animation="scale"
+              ></Button>
+              <ErrorSpan>{error}</ErrorSpan> 
+            </SubmitButtonContainer>
             <div>
               <span>Or login with</span>
             </div>
             <OtherLoginOptions>
               <OtherLoginOption href="#">
-                <BsFacebook />
-                Facebook
+                <LinkSpan><BsFacebook /> Facebook</LinkSpan>
               </OtherLoginOption>
               <OtherLoginOption href="#">
-                <FcGoogle />
-                Google
+                <LinkSpan><FcGoogle /> Google</LinkSpan>
               </OtherLoginOption>
             </OtherLoginOptions>
             <SignUpContainer>
               <span>Not a member?</span>
-              <a href="#">Sign up now</a>
+              <Link to='/register'>
+                <LinkSpan>Sign up now</LinkSpan>
+              </Link>
             </SignUpContainer>
           </LoginForm>
         </LoginContainer>
@@ -87,16 +114,16 @@ const SingleInputContainer = styled.div`
   width: 100%;
 `
 
-const InputField = styled.input`
-  border: 1px solid transparent;
-  border-bottom: 1px solid rgba(0,0,0,0.2);
-  padding: 18px 18px;
-  width: 100%;  
+const SubmitButtonContainer = styled.div`
+  gap: 1rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
 
-  &:focus {
-    border: 1px solid rgba(0,0,0,0.2);
-    border-radius: 5px; 
-  }
+const ErrorSpan = styled.span`
+  color: red;
 `
 
 const RememberMeContainer = styled.div`
@@ -124,6 +151,13 @@ const SignUpContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 1rem;
+`
+
+const LinkSpan = styled.span`
+  color: #0000FF;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 `
 
 export default Login

@@ -2,29 +2,34 @@ import React from 'react'
 import styled from 'styled-components'
 import homeBackground from '../assets/homeBackground.png'
 import Button from '../components/elements/Button'
+import { Link } from 'react-router-dom'
 
 const Home = () => {
   return (
     <main>
         <AuthenticationButtons>
-          <Button
-            $content="Login"
-            $size="small"
-            $shape="squared"
-            $buttonStyle="transparent"
-            $color="white"
-            $fontColor="white"
-            $animation="underline"
-          ></Button>
-          <Button 
-            $content="Register"
-            $size="small"
-            $shape="squared"
-            $buttonStyle="transparent"
-            $color="white"
-            $fontColor="white"
-            $animation="underline"
-          ></Button>
+          <Link to='/login'>
+            <Button
+              $content="Login"
+              $size="small"
+              $shape="squared"
+              $buttonStyle="transparent"
+              $color="white"
+              $fontColor="white"
+              $animation="underline"
+            ></Button>
+          </Link>
+          <Link to='/register'>
+            <Button 
+              $content="Register"
+              $size="small"
+              $shape="squared"
+              $buttonStyle="transparent"
+              $color="white"
+              $fontColor="white"
+              $animation="underline"
+            ></Button>
+          </Link>
         </AuthenticationButtons>
         <Content>
           <Slogan>Simplify your life.</Slogan>
