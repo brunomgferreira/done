@@ -7,7 +7,7 @@ import axios from 'axios';
 import InputField from '../components/elements/InputField';
 import { Link } from 'react-router-dom'
 
-function Login() {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
