@@ -31,7 +31,7 @@ const ButtonWrapper = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 2rem;
   font-weight: bold;
 
   /* $SIZE */
@@ -42,6 +42,12 @@ const ButtonWrapper = styled.button`
       width: 100%;
     `}
 
+  ${({ $size }) =>
+    $size === 'mediumWide' &&
+    css`
+      padding: 2rem 6rem 2rem 6rem;
+    `}
+    
   ${({ $size }) =>
     $size === 'big' &&
     css`
@@ -57,6 +63,14 @@ const ButtonWrapper = styled.button`
     `}
 
   ${({ $size }) =>
+    $size === 'automatic' &&
+    css`
+      padding: 4rem 2rem 4rem 2rem;
+      font-size: 1.5rem;
+      line-height: 0;
+    `}
+
+  ${({ $size }) =>
     $size === 'small' &&
     css`
       width: 10rem;
@@ -69,14 +83,12 @@ const ButtonWrapper = styled.button`
   ${({ $shape }) =>
     $shape === 'round' &&
     css`
-      padding: 2rem;
       border-radius: 50px;
     `}
 
   ${({ $shape }) =>
     $shape === 'squared' &&
     css`
-      padding: 2rem;
       border-radius: 5px;
     `}
 
@@ -132,6 +144,13 @@ const ButtonWrapper = styled.button`
       border-bottom: 2px solid transparent;
       border-radius: 0;
     `}
+
+  ${({ $buttonStyle }) =>
+    $buttonStyle === 'icon' &&
+    css`
+      background-color: transparent;
+      padding: 0;
+    `}
  
   /* FONT COLOR */
 
@@ -139,6 +158,12 @@ const ButtonWrapper = styled.button`
     $fontColor === 'white' &&
     css`
       color: white;
+    `}
+  
+  ${({ $fontColor }) => 
+    $fontColor === 'primary' &&
+    css`
+      color: ${({theme}) => theme.colors.primary};
     `}
 
   /* ANIMATION */
@@ -165,6 +190,20 @@ const ButtonWrapper = styled.button`
 
       &:hover {
         transform: scale(1.1);
+      }
+
+      &:active {
+        transform: scale(1.02);
+      }
+    `}
+
+  ${({ $animation }) =>
+    $animation === 'smallScale' &&
+    css`
+      transition: transform 0.15s ease-in-out;
+
+      &:hover {
+        transform: scale(1.06);
       }
 
       &:active {

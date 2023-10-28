@@ -21,6 +21,10 @@ const Theme = {
         grey: '#c3c3c3',
         dark: '#444',
       },
+      blue: {
+        primary:'#5172FF',
+        light: '#91a5ff', //708AFF
+      }
     },
   
     widths: {

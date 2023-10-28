@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 import TaskBtn from './TaskBtn'
+import Button from './Button'
+import { IoIosArrowDown } from 'react-icons/io'
 
 const Task = ({ $startingTime, $endingTime, $taskName, $active}) => {
   return (
@@ -12,11 +14,21 @@ const Task = ({ $startingTime, $endingTime, $taskName, $active}) => {
     $active={$active}
     >
       <LeftSide>
+        <TaskBtn $active={$active}></TaskBtn>
         <Time $active={$active}>{$startingTime} - {$endingTime}</Time>
         <TaskName $active={$active}>{$taskName}</TaskName>
       </LeftSide>
       <RightSide>
-        <TaskBtn $active={$active}></TaskBtn>
+      <Button
+        $content=
+        {
+            <>
+                <span>&nbsp;&nbsp;</span><IoIosArrowDown size={26}/>
+            </>
+        }
+        $buttonStyle="icon"
+        $animation="scale"
+    ></Button>
       </RightSide>
     </TaskContainer>
   )
@@ -37,7 +49,7 @@ const TaskContainer = styled.div`
   gap: 3rem;      
   padding: 2rem 2rem 2rem 2rem;
   border: 1px solid rgb(210, 210, 210);
-  border-radius: 1rem;
+  border-radius: 3rem;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.03);
 `
 
