@@ -1,9 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
-import TaskBtn from './TaskBtn'
 import Button from './Button'
 import { IoIosArrowDown } from 'react-icons/io'
+import { FiCheckCircle, FiCircle } from 'react-icons/fi'
 
 const Task = ({ $startingTime, $endingTime, $taskName, $active}) => {
   return (
@@ -14,21 +14,20 @@ const Task = ({ $startingTime, $endingTime, $taskName, $active}) => {
     $active={$active}
     >
       <LeftSide>
-        <TaskBtn $active={$active}></TaskBtn>
+        <Button
+          $content={$active ? <FiCircle size={22} /> : <FiCheckCircle size={22} />}
+          $buttonStyle="icon"
+          $animation="scale"
+        ></Button>
         <Time $active={$active}>{$startingTime} - {$endingTime}</Time>
         <TaskName $active={$active}>{$taskName}</TaskName>
       </LeftSide>
       <RightSide>
-      <Button
-        $content=
-        {
-            <>
-                <span>&nbsp;&nbsp;</span><IoIosArrowDown size={26}/>
-            </>
-        }
-        $buttonStyle="icon"
-        $animation="scale"
-    ></Button>
+        <Button
+          $content={<><span>&nbsp;&nbsp;</span><IoIosArrowDown size={26}/></>}
+          $buttonStyle="icon"
+          $animation="scale"
+        ></Button>
       </RightSide>
     </TaskContainer>
   )

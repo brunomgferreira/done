@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled, {css} from 'styled-components'
 
-const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontColor, $animation}) => {
+const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontColor, $fontWeight, $animation}) => {
   return (
     <ButtonWrapper
     $onClick={$onClick}
@@ -11,6 +11,7 @@ const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontC
     $buttonStyle={$buttonStyle}
     $color={$color}
     $fontColor={$fontColor}
+    $fontWeight={$fontWeight}
     $animation={$animation}
     >{$content}</ButtonWrapper>
   )
@@ -24,6 +25,7 @@ Button.propTypes = {
   $size: PropTypes.string,
   $color: PropTypes.string,
   $fontColor: PropTypes.string,
+  $fontWeight: PropTypes.string,
   $animation: PropTypes.string,
 }
 
@@ -164,6 +166,20 @@ const ButtonWrapper = styled.button`
     $fontColor === 'primary' &&
     css`
       color: ${({theme}) => theme.colors.primary};
+    `}
+
+  /* FONT WEIGHT */
+
+  ${({ $fontWeight }) => 
+    $fontWeight === 'bold' &&
+    css`
+      font-weight: bold;
+    `}
+  
+  ${({ $fontWeight }) => 
+    $fontWeight === 'normal' &&
+    css`
+      font-weight: normal;
     `}
 
   /* ANIMATION */

@@ -1,7 +1,6 @@
 import React from 'react'
 import Header from '../components/Header'
 import styled from 'styled-components'
-import DayButton from '../components/elements/TaskDayButton'
 import Task from '../components/elements/Task'
 import Button from '../components/elements/Button'
 import { FiCheckCircle } from 'react-icons/fi'
@@ -15,14 +14,62 @@ const Tasks = () => {
             <SecondHeader>
                 <Date>16 OCT.</Date>
                 <Navbar>
-                    <DayButton $active={true} $content={'TODAY'}></DayButton>
-                    <DayButton $active={false} $content={'MON'}></DayButton>
-                    <DayButton $active={false} $content={'TUE'}></DayButton>
-                    <DayButton $active={false} $content={'WED'}></DayButton>
-                    <DayButton $active={false} $content={'THU'}></DayButton>
-                    <DayButton $active={false} $content={'FRI'}></DayButton>
-                    <DayButton $active={false} $content={'SAT'}></DayButton>
-                    <DayButton $active={false} $content={'SUN'}></DayButton>
+                    <Button 
+                        $content="TODAY"
+                        $buttonStyle="icon"
+                        $fontColor={true ? "primary" : "black"}
+                        $fontWeight={true ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
+                    <Button 
+                        $content="MON"
+                        $buttonStyle="icon"
+                        $fontColor={false ? "primary" : "black"}
+                        $fontWeight={false ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
+                    <Button 
+                        $content="TUE"
+                        $buttonStyle="icon"
+                        $fontColor={false ? "primary" : "black"}
+                        $fontWeight={false ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
+                    <Button 
+                        $content="WED"
+                        $buttonStyle="icon"
+                        $fontColor={false ? "primary" : "black"}
+                        $fontWeight={false ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
+                    <Button 
+                        $content="THU"
+                        $buttonStyle="icon"
+                        $fontColor={false ? "primary" : "black"}
+                        $fontWeight={false ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
+                    <Button 
+                        $content="FRI"
+                        $buttonStyle="icon"
+                        $fontColor={false ? "primary" : "black"}
+                        $fontWeight={false ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
+                    <Button 
+                        $content="SAT"
+                        $buttonStyle="icon"
+                        $fontColor={false ? "primary" : "black"}
+                        $fontWeight={false ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
+                    <Button 
+                        $content="SUN"
+                        $buttonStyle="icon"
+                        $fontColor={false ? "primary" : "black"}
+                        $fontWeight={false ? "bold" : "normal"}
+                        $animation="scale"
+                    ></Button>
                 </Navbar>
             </SecondHeader>
         </SecondHeaderWrapper>
