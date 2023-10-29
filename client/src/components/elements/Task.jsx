@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 import Button from './Button'
-import { IoIosArrowDown } from 'react-icons/io'
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { FiCheckCircle, FiCircle, FiEdit, FiShare2 } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
 
@@ -37,7 +37,7 @@ const Task = ({ $startingTime, $endingTime, $taskName, $active}) => {
         </LeftSide>
         <RightSide>
           <Button
-            $content={<><span>&nbsp;&nbsp;</span><IoIosArrowDown size={26}/></>}
+            $content={isExpanded ? <IoIosArrowUp size={26}/> : <IoIosArrowDown size={26}/>}
             $buttonStyle="icon"
             $animation="scale"
             $onClick={() => toggleExpand()}
@@ -136,7 +136,7 @@ const Main = styled.div`
 
   ${({$isExpanded}) => 
   $isExpanded && css`
-    margin-top: 1rem;
+    margin-top: 0rem;
     padding-top: 1rem;
     opacity: 1;
     height: auto;
