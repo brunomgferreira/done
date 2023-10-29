@@ -5,7 +5,7 @@ import styled, {css} from 'styled-components'
 const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontColor, $fontWeight, $animation}) => {
   return (
     <ButtonWrapper
-    $onClick={$onClick}
+    onClick={$onClick}
     $size={$size}
     $shape={$shape}
     $buttonStyle={$buttonStyle}
@@ -129,6 +129,7 @@ const ButtonWrapper = styled.button`
     css`
       background-color: white;
     `}
+    
 
   /* BUTTON STYLE */
 
@@ -152,6 +153,13 @@ const ButtonWrapper = styled.button`
     css`
       background-color: transparent;
       padding: 0;
+    `}
+  
+  ${({ $buttonStyle }) =>
+    $buttonStyle === 'text' &&
+    css`
+      background-color: transparent;
+      padding: 1rem 2rem 1rem 2rem;
     `}
  
   /* FONT COLOR */
