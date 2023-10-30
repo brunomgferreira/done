@@ -129,6 +129,13 @@ const ButtonWrapper = styled.button`
     css`
       background-color: white;
     `}
+
+  ${({ $color }) =>
+    $color === 'transparent' &&
+    css`
+      background-color: transparent;
+    `}
+    
     
 
   /* BUTTON STYLE */
@@ -153,6 +160,14 @@ const ButtonWrapper = styled.button`
     css`
       background-color: transparent;
       padding: 0;
+    `}
+
+  ${({ $buttonStyle }) => 
+    $buttonStyle === 'roundIcon' &&
+    css`
+      border: 2px solid ${({theme}) => (theme.colors.primary)};
+      padding: 1rem;
+      border-radius: 50rem;
     `}
   
   ${({ $buttonStyle }) =>

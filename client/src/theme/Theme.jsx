@@ -1,13 +1,13 @@
 const Theme = {
     colors: {
-      primary: '#1345b8', //5172FF
+      primary: '#0c40b7', //5172FF
       red: '#ff9999',
       dark: '#000',
       light: '#FFF',
       grey: {
         light: '#F9F9F9',
-        main: '#E5E5E5',
-        dark: '#7B7B7B',
+        main: '#D2D2D2',
+        dark: '#858585',
       },
       hover: {
         primary: '#35eec2',
@@ -16,7 +16,7 @@ const Theme = {
         dark: '#333',
       },
       active: {
-        primary: '#24ddb1',
+        primary: 'rgb(180, 58, 255)',
         red: '#dd7777',
         grey: '#c3c3c3',
         dark: '#444',
@@ -24,6 +24,10 @@ const Theme = {
       blue: {
         primary:'#5172FF',
         light: '#91a5ff', //708AFF
+        dark: '#213ebf',
+      },
+      shadow: {
+        main: '#00000006',
       }
     },
   

@@ -3,69 +3,109 @@ import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 import Button from './Button'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import { MdNotes, MdOutlineNotifications } from 'react-icons/md'
 import { FiCheckCircle, FiCircle, FiEdit, FiShare2 } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
+import { IoTimeOutline } from 'react-icons/io5'
+import { TbCategory, TbRepeat } from 'react-icons/tb'
+import { HiOutlineLocationMarker } from 'react-icons/hi'
 
-const Task = ({ $startingTime, $endingTime, $taskName, $active}) => {
-
-  const [isExpanded, setIsExpanded] = useState(false);
+const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes}) => {
+  const [isActive, setIsActive] = useState(true);
 
   const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+    if($isExpanded) collapseTask();
+    else updateTask();
+  }
+
+  const updateTask = () => {
+    $updateExpandedTask($taskId);
+  };
+
+  const collapseTask = () => {
+    $updateExpandedTask(null);
+  }
+
+  const toggleActive = () => {
+    setIsActive(!isActive);
   };
 
   return (
-    <TaskContainer
-    $startingTime={$startingTime}
-    $endingTime={$endingTime}
-    $taskName={$taskName}
-    $active={$active}
-    >
-      <Header $isExpanded = {isExpanded}>
-        <LeftSide $isExpanded={isExpanded}>
-          {!isExpanded &&
+    <TaskContainer>
+      <Header $isExpanded={$isExpanded} $active={isActive}>
+        <LeftSide $isExpanded={$isExpanded}>
+          {!$isExpanded &&
           (<Button
-            $content={$active ? <FiCircle size={22} /> : <FiCheckCircle size={22} />}
+            $content={isActive ? <FiCircle size={22} /> : <FiCheckCircle size={22} />}
             $buttonStyle="icon"
             $animation="scale"
+            $onClick={() => toggleActive()}
           ></Button>)}
           <DayTimeContainer>
-            <Day $isExpanded={isExpanded} $active={$active}>16/10/23</Day>
-            <Time $isExpanded={isExpanded} $active={$active}>{$startingTime} - {$endingTime}</Time>
+            {$isExpanded && <IoTimeOutline size={20}/>}
+            <Day $isExpanded={$isExpanded}>{$date}</Day>
+            <Time $isExpanded={$isExpanded}>{$startingTime} - {$endingTime}</Time>
           </DayTimeContainer>
-          <TaskName $active={$active}>{$taskName}</TaskName>
+          <h4>{$taskName}</h4>
         </LeftSide>
         <RightSide>
           <Button
-            $content={isExpanded ? <IoIosArrowUp size={26}/> : <IoIosArrowDown size={26}/>}
+            $content={$isExpanded ? <IoIosArrowUp size={26}/> : <IoIosArrowDown size={26}/>}
             $buttonStyle="icon"
             $animation="scale"
             $onClick={() => toggleExpand()}
           ></Button>
         </RightSide>
       </Header>
-      
-      <Main $isExpanded={isExpanded}>
-        <InfoContainer>
-          <h4>Description:&nbsp;&nbsp;</h4>
-          <Info>Task Name</Info>
-        </InfoContainer>
+      <Main $isExpanded={$isExpanded}>
+        {$category && 
+        <InfoContainer $active={isActive}>
+          <TbCategory size={20} />
+          <Info>&nbsp;&nbsp;{$category}</Info>
+        </InfoContainer>}
+        {$location &&
+        <InfoContainer $active={isActive}>
+          <HiOutlineLocationMarker size={20} />
+          <Info>&nbsp;&nbsp;{$location}</Info>
+        </InfoContainer>}
+        {$notification &&
+        <InfoContainer $active={isActive}>
+          <MdOutlineNotifications size={21}/>
+          <Info>&nbsp;&nbsp;{$notification}</Info>
+        </InfoContainer>}
+        {$repeat &&
+        <InfoContainer $active={isActive}>
+          <TbRepeat size={20}/>
+          <Info>&nbsp;&nbsp;{$repeat}</Info>
+        </InfoContainer>}
+        {$notes && 
+        <InfoContainer $active={isActive}>
+          <MdNotes size={20} />
+          <Info>&nbsp;&nbsp;{$notes}</Info>
+        </InfoContainer>}
         
-        <ButtonContainer>
-          <Button
-            $content={<>Done<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
-            $buttonStyle="text"
-            $fontColor={"primary"}
-            $fontWeight={"bold"}
-            $animation="smallScale"
-          ></Button>
-          <Button
-            $content={<>Edit<span>&nbsp;&nbsp;</span><FiEdit size={20} /></>}
-            $buttonStyle="text"
-            $fontColor={"primary"}
-            $fontWeight={"bold"}
-            $animation="scale"
-          ></Button>
+        <ButtonContainer $active={isActive}>
+          {isActive &&
+            <>
+              <Button 
+                $content={<>Done<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
+                $buttonStyle="text"
+                $fontColor={"primary"}
+                $fontWeight={"bold"}
+                $animation="smallScale"
+                $onClick={() =>{
+                  toggleActive();
+                  toggleExpand();}}
+              ></Button>
+              <Button
+                $content={<>Edit<span>&nbsp;&nbsp;</span><FiEdit size={20} /></>}
+                $buttonStyle="text"
+                $fontColor={"primary"}
+                $fontWeight={"bold"}
+                $animation="scale"
+              ></Button>
+            </>
+          }
           <Button
             $content={<>Share<span>&nbsp;&nbsp;</span><FiShare2 size={20} /></>}
             $buttonStyle="text"
@@ -87,10 +127,18 @@ const Task = ({ $startingTime, $endingTime, $taskName, $active}) => {
 }
 
 Task.propTypes = {
+  $taskId: PropTypes.string,
+  $isExpanded:PropTypes.bool,  
+  $updateExpandedTask: PropTypes.bool,
+  $taskName: PropTypes.string,
+  $category: PropTypes.string,
+  $date: PropTypes.string,
   $startingTime: PropTypes.string,
   $endingTime: PropTypes.string,
-  $taskName: PropTypes.string,
-  $active: PropTypes.bool,
+  $location: PropTypes.string,
+  $notification: PropTypes.string,
+  $repeat: PropTypes.string,
+  $notes: PropTypes.string,
 }
 
 const TaskContainer = styled.div`
@@ -100,10 +148,10 @@ const TaskContainer = styled.div`
   justify-content: space-between;
   gap: 1rem;      
   padding: 2rem 2rem 2rem 2rem;
-  border: 1px solid rgb(210, 210, 210);
+  border: 1px solid ${({theme}) => (theme.colors.grey.main)};
   border-radius: 3rem;
-  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.03);
-  transition: 0.10s ease-in-out;
+  box-shadow: 5px 5px 5px ${({theme}) => (theme.colors.shadow.main)};
+  transition: 0.2s ease-in-out;
 `
 
 const Header = styled.div`
@@ -117,6 +165,14 @@ const Header = styled.div`
   ${({$isExpanded}) => 
   $isExpanded && css`
     align-items:start;
+  `}
+
+  ${({ $active }) =>
+  !$active &&
+  css`
+      color: ${({theme}) => (theme.colors.grey.dark)};
+      background-color: transparent;
+      text-decoration: line-through;
   `}
 `
 
@@ -136,7 +192,7 @@ const Main = styled.div`
 
   ${({$isExpanded}) => 
   $isExpanded && css`
-    margin-top: 0rem;
+    margin-top: -0.5rem;
     padding-top: 1rem;
     opacity: 1;
     height: auto;
@@ -149,6 +205,14 @@ const InfoContainer = styled.div`
   justify-content: start;
   align-items: center;
   width: 100%;
+
+  ${({ $active }) =>
+  !$active &&
+  css`
+      color: ${({theme}) => (theme.colors.grey.dark)};
+      background-color: transparent;
+      text-decoration: line-through;
+  `}
 `
 
 const Info = styled.p`
@@ -158,7 +222,7 @@ const Info = styled.p`
 `
 
 const ButtonContainer = styled.div`
-  border-top: 1px solid rgb(210, 210, 210);
+  border-top: 1px solid ${({theme}) => (theme.colors.grey.main)};
   padding-top: 2rem;
   display: flex;
   flex-direction: row;
@@ -167,6 +231,13 @@ const ButtonContainer = styled.div`
   gap: 3rem;    
   /* padding: 0 2rem 0 2rem;  */
   width: 100%;
+
+  ${({$active}) => 
+    !$active && css`
+      padding: 0 10rem 0 10rem; 
+      padding-top: 2rem;
+    `
+  }
 `
 
 const LeftSide = styled.div`
@@ -206,34 +277,16 @@ const Day = styled.p`
   ${({$isExpanded}) => 
   $isExpanded && css`
     display: flex;
+    margin-left: 1rem;
   `}
 `
 
 const Time = styled.p`
-  /* background-color: #90ff943a;
-  padding: 0.6rem 1rem 0.6rem 1rem; */
   border-radius: 1rem;
-
-  ${({ $active }) =>
-  !$active &&
-  css`
-      color: #80808092;
-      background-color: transparent;
-      text-decoration: line-through;
-  `}
 
   ${({$isExpanded}) => 
   $isExpanded && css`
-    margin-left: 3rem;
-  `}
-`
-
-const TaskName = styled.h4`
-  ${({ $active }) =>
-  !$active &&
-  css`
-    color: #80808092;
-    text-decoration: line-through;
+    margin-left: 2rem;
   `}
 `
 
