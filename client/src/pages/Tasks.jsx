@@ -6,6 +6,7 @@ import Button from '../components/elements/Button'
 import TasksStatsContainer from '../components/elements/TasksStatsContainer'
 import { FiCheckCircle, FiFilter, FiPlus } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
+import AddTaskModal from '../components/elements/AddTaskModal'
 
 const Tasks = () => {
 
@@ -17,6 +18,7 @@ const updateExpandedTask = (taskId) => {
 
 return (
     <div>
+        <AddTaskModal isOpen={true}/>
         <Header></Header>
         <SecondHeaderWrapper>
             <SecondHeader>
@@ -84,7 +86,7 @@ return (
         <MainWrapper>
             <LeftContainer>
                 <ButtonWrapper>
-                    <ButtonContainer>
+                    <LeftButtonContainer>
                         <InputField type="text" placeholder='New Task' />
                         <Button
                             $content={<FiPlus size={20}/>}
@@ -93,8 +95,8 @@ return (
                             $color="primary"
                             $fontColor="white"
                         ></Button>
-                    </ButtonContainer>
-                    <ButtonContainer>
+                    </LeftButtonContainer>
+                    <RightButtonContainer>
                         <Button
                             $content={<FiFilter size={20}/>}
                             $buttonStyle="roundIcon"
@@ -116,11 +118,11 @@ return (
                             $color="transparent"
                             $fontColor="primary"
                         ></Button>
-                    </ButtonContainer>     
+                    </RightButtonContainer>     
                 </ButtonWrapper>
-                <Task $taskId={1} $isExpanded={expandedTask === 1} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
-                <Task $taskId={2} $isExpanded={expandedTask === 2} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
-                <Task $taskId={3} $isExpanded={expandedTask === 3} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
+                <Task $taskId={"1"} $isExpanded={expandedTask == 1} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
+                <Task $taskId={"2"} $isExpanded={expandedTask == 2} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
+                <Task $taskId={"3"} $isExpanded={expandedTask == 3} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
             </LeftContainer>
             <TasksStatsContainer />
         </MainWrapper>
@@ -182,7 +184,7 @@ const ButtonWrapper = styled.div`
     padding:  0.5rem 1rem 1rem 1rem;
 `
 
-const ButtonContainer = styled.div`
+const LeftButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -203,6 +205,13 @@ const InputField = styled.input`
         border-radius: 5rem;
         border-color: ${({theme}) => theme.colors.primary};
     }
+`
+
+const RightButtonContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1.5rem;
 `
 
 export default Tasks

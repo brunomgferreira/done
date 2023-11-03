@@ -129,7 +129,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
 Task.propTypes = {
   $taskId: PropTypes.string,
   $isExpanded:PropTypes.bool,  
-  $updateExpandedTask: PropTypes.bool,
+  $updateExpandedTask: PropTypes.func,
   $taskName: PropTypes.string,
   $category: PropTypes.string,
   $date: PropTypes.string,

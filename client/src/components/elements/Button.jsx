@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled, {css} from 'styled-components'
 
-const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontColor, $fontWeight, $animation}) => {
+const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontColor, $fontWeight, $animation, $borderColor}) => {
   return (
     <ButtonWrapper
     onClick={$onClick}
@@ -13,6 +13,7 @@ const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontC
     $fontColor={$fontColor}
     $fontWeight={$fontWeight}
     $animation={$animation}
+    $borderColor={$borderColor}
     >{$content}</ButtonWrapper>
   )
 }
@@ -27,6 +28,7 @@ Button.propTypes = {
   $fontColor: PropTypes.string,
   $fontWeight: PropTypes.string,
   $animation: PropTypes.string,
+  $borderColor: PropTypes.string
 }
 
 const ButtonWrapper = styled.button`
@@ -170,6 +172,14 @@ const ButtonWrapper = styled.button`
       border-radius: 50rem;
     `}
   
+  ${({ $buttonStyle }) => 
+    $buttonStyle === 'roundText' &&
+    css`
+      border: 2px solid ${({theme}) => (theme.colors.primary)};
+      padding: 1rem 2rem 1rem 2rem;
+      border-radius: 50rem;
+    `}
+  
   ${({ $buttonStyle }) =>
     $buttonStyle === 'text' &&
     css`
@@ -189,6 +199,26 @@ const ButtonWrapper = styled.button`
     $fontColor === 'primary' &&
     css`
       color: ${({theme}) => theme.colors.primary};
+    `}
+
+    ${({ $fontColor }) => 
+    $fontColor === 'red' &&
+    css`
+      color: ${({theme}) => theme.colors.red};
+    `}
+
+  /* BORDER COLOR */
+
+  ${({ $borderColor }) => 
+    $borderColor === 'primary' &&
+    css`
+      border-color: ${({theme}) => theme.colors.primary};
+    `}
+  
+  ${({ $borderColor }) => 
+    $borderColor === 'red' &&
+    css`
+      border-color: ${({theme}) => theme.colors.red};
     `}
 
   /* FONT WEIGHT */
