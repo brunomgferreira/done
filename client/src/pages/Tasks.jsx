@@ -6,7 +6,7 @@ import Button from '../components/elements/Button'
 import TasksStatsContainer from '../components/elements/TasksStatsContainer'
 import { FiCheckCircle, FiFilter, FiPlus } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
-import AddTaskModal from '../components/elements/AddTaskModal'
+import AddTaskModal from '../components/addTaskModal/AddTaskModal'
 
 const Tasks = () => {
 
@@ -18,7 +18,7 @@ const updateExpandedTask = (taskId) => {
 
 return (
     <div>
-        <AddTaskModal isOpen={true}/>
+        <AddTaskModal $isOpen={true}/>
         <Header></Header>
         <SecondHeaderWrapper>
             <SecondHeader>
