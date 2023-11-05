@@ -9,6 +9,7 @@ import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { IoCalendarOutline } from 'react-icons/io5';
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 import TimeIntervalSelect from './TimeIntervalSelect';
+import MultiSelector from './MultiSelector';
 
 const AddTaskContext = createContext();
 
@@ -22,6 +23,11 @@ const AddTaskModal = ({ $isOpen}) => {
     const [date , setDate] = useState(new Date().toISOString().split("T")[0]);
     const [startingTime, setStartingTime] = useState(`${new Date().getHours()}:${new Date().getMinutes()}`);
     const [endingTime, setEndingTime] = useState(`${new Date().getHours()}:${new Date().getMinutes()}`);
+
+    const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
+    const notificationDefaultOption = 'No Notifications';
+    const repeatOptions = ['Every Day', 'Every Week', 'Every Month', 'Every Year'];
+    const repeatDefaultOption = 'No Repeat';
 
     const updateName = (newValue) => {
         setName(newValue);
@@ -93,23 +99,11 @@ const AddTaskModal = ({ $isOpen}) => {
                         </InfoContainer>
                         <InfoContainer>
                             <MdOutlineNotifications size={21}/>
-                            <Select multiple value={notification} onChange={(e) => updateNotification(e.target.value)}>
-                                <option>No Notification</option>
-                                <option>On Time</option>
-                                <option>10 Minutes Before</option>
-                                <option>1 Hour Before</option>
-                                <option>1 Day Before</option>
-                            </Select>
+                            <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions}></MultiSelector>
                         </InfoContainer>
                         <InfoContainer>
                             <TbRepeat size={20}/>
-                            <Select multiple value={repeat} onChange={(e) => updateRepeat(e.target.value)}>
-                                <option>No Repeat</option>
-                                <option>Every Day</option>
-                                <option>Every Week</option>
-                                <option>Every Month</option>
-                                <option>Every Year</option>
-                            </Select>
+                            <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions}></MultiSelector>
                         </InfoContainer>
                         <InfoContainer>
                             <MdNotes size={20} />
