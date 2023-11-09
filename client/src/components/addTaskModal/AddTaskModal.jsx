@@ -10,6 +10,7 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 import TimeIntervalSelect from './TimeIntervalSelect';
 import MultiSelector from './MultiSelector';
+import SelectorWithAdd from './SelectorWithAdd';
 
 const AddTaskContext = createContext();
 
@@ -28,6 +29,8 @@ const AddTaskModal = ({ $isOpen}) => {
     const notificationDefaultOption = 'No Notifications';
     const repeatOptions = ['Every Day', 'Every Week', 'Every Month', 'Every Year'];
     const repeatDefaultOption = 'No Repeat';
+    const categoryOptions = [{name: 'Every Day', color: '#000000'}, {name: 'Every Week', color: '#FFFFFF'}, {name: 'Every Month', color: '#AABBFF'}];
+    const categoryDefaultOption = {name: 'No Repeat', color: '#000000'};
 
     const updateName = (newValue) => {
         setName(newValue);
@@ -65,6 +68,10 @@ const AddTaskModal = ({ $isOpen}) => {
         setEndingTime(newValue);
     };
 
+    const addNewCategory = (name, color) => {
+        console.log({name: name, color: color});
+    }
+
     return (
         $isOpen && (
         <AddTaskContext.Provider
@@ -91,7 +98,8 @@ const AddTaskModal = ({ $isOpen}) => {
                         <TimeIntervalSelect $updateStartingTime={(newValue) => updateStartingTime(newValue)} $updateEndingTime={(newValue) => updateEndingTime(newValue)} />
                         <InfoContainer>
                             <TbCategory size={20} />
-                            <InputField value={category} onChange={(e) => updateCategory(e.target.value)} placeholder='Category' />
+                            <SelectorWithAdd $defaultOption={categoryDefaultOption} $options={categoryOptions} $onAdd={addNewCategory}/>
+                            {/* <InputField value={category} onChange={(e) => updateCategory(e.target.value)} placeholder='Category' /> */}
                         </InfoContainer>
                         <InfoContainer>
                             <HiOutlineLocationMarker size={20} />

@@ -66,14 +66,14 @@ const TimePicker = ({placeholder, $minTime, $updateTime}) => {
     const minuteOptions = Array(6).fill().map((_, i) => (i * 10).toString().padStart(2, '0')).map(numberToOption);
 
     return (
-        <div ref={timePickerRef}>
+        <TimePickerWrapper ref={timePickerRef}>
             <InputField type="text" value={`${hourValue.toString().padStart(2,"0")}:${minuteValue.toString().padStart(2,"0")}`} onChange={()=>{}} placeholder={placeholder} onFocus={() => setIsOpen(true)}/>
             {isOpen && (<TimePickerContainer>
                 <TimeSelect min={minHour} $value={hourValue} $options={hourOptions} $onChange={(newValue) => updateHourValue(newValue)}/>
                 <h4>:</h4>
                 <TimeSelect min={hourValue > minHour ? 0 : minMinute} $value={minuteValue} $options={minuteOptions} $onChange={(newValue) => updateMinuteValue(newValue)}/>
             </TimePickerContainer>)}
-        </div>
+        </TimePickerWrapper>
     )
 }
 
@@ -82,6 +82,10 @@ TimePicker.propTypes = {
     $minTime: PropTypes.string,
     $updateTime: PropTypes.func
 }
+
+const TimePickerWrapper = styled.div`
+    z-index: 100;
+`
 
 const InputField = styled.input`
     padding: 10px 10px;
@@ -108,14 +112,6 @@ const TimePickerContainer = styled.div`
     padding: 2rem 2rem 2rem 2rem;
     border: 1px solid ${({theme}) => theme.colors.grey.main};
     border-radius: 1rem;
-`
-
-const HourPicker = styled.select`
-
-`
-
-const MinutePicker = styled.select`
-    
 `
 
 export default TimePicker

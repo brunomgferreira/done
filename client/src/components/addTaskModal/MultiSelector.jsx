@@ -38,7 +38,7 @@ const MultiSelector = ({ $options, $defaultOption }) => {
             <InputField type="text" value={selectedOptions.length == 0 ? $defaultOption : selectedOptions.join(', ')} readOnly onFocus={() => setIsOpen(true)} $defaultOption={$defaultOption}/>
             {isOpen && 
                 <OptionsContainer>
-                    <Option onClick={() => setSelectedOptions([])} selected={selectedOptions.length == 0}>{$defaultOption}</Option>
+                    <Option onClick={() => {setSelectedOptions([]); setIsOpen(false);}} selected={selectedOptions.length == 0}>{$defaultOption}</Option>
                     {$options.map((option) => (
                         <Option key={option} onClick={() => toggleOption(option)} selected={selectedOptions.includes(option)}>{option}</Option>
                     ))}
@@ -73,8 +73,8 @@ const InputField = styled.input`
 
 const OptionsContainer = styled.div`
     position: absolute;
-    top: 5rem;
-    left: -1rem;
+    top: 4rem;
+    left: 0rem;
     display: flex;
     flex-direction: column;
     align-items: start;
