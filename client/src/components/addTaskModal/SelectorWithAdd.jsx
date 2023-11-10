@@ -32,15 +32,15 @@ const SelectorWithAdd = ({ $options, $defaultOption, $onAdd}) => {
         };
 
         const handleClickInside = () => {
-            setIsOpen(true);
+            SelectorRef.current && setIsOpen(true);
         };
         
         document.addEventListener('mousedown', handleClickOutside);
-        SelectorRef.current.addEventListener('mousedown', handleClickInside);
+        SelectorRef.current && SelectorRef.current.addEventListener('mousedown', handleClickInside);
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
-            SelectorRef.current.removeEventListener('mousedown', handleClickInside);
+            SelectorRef.current && SelectorRef.current.removeEventListener('mousedown', handleClickInside);
         }
     }, [isOpen])
 

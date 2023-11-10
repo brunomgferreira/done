@@ -45,15 +45,15 @@ const TimePicker = ({placeholder, $minTime, $updateTime}) => {
         };
 
         const handleClickInside = () => {
-            setIsOpen(true);
+            timePickerRef.current && setIsOpen(true);
         };
         
         document.addEventListener('mousedown', handleClickOutside);
-        timePickerRef.current.addEventListener('mousedown', handleClickInside);
+        timePickerRef.current && timePickerRef.current.addEventListener('mousedown', handleClickInside);
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
-            timePickerRef.current.removeEventListener('mousedown', handleClickInside);
+            timePickerRef.current && timePickerRef.current.removeEventListener('mousedown', handleClickInside);
         }
     }, [isOpen])
 

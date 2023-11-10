@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components';
 import Button from '../elements/Button';
@@ -14,16 +14,17 @@ import SelectorWithAdd from './SelectorWithAdd';
 
 const AddTaskContext = createContext();
 
-const AddTaskModal = ({ $isOpen}) => {
-    const [name, setName] = useState("");
+const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
+    const [name, setName] = useState($defaultName);
     const [category, setCategory] = useState("");
     const [location, setLocation] = useState("");
     const [notification, setNotification] = useState([]);
-    const [repeat, setRepeat] = useState(["No Repeat"]);
+    const [repeat, setRepeat] = useState([]);
     const [notes, setNotes] = useState("");
     const [date , setDate] = useState(new Date().toISOString().split("T")[0]);
-    const [startingTime, setStartingTime] = useState(`${new Date().getHours()}:${new Date().getMinutes()}`);
-    const [endingTime, setEndingTime] = useState(`${new Date().getHours()}:${new Date().getMinutes()}`);
+    const [startingTime, setStartingTime] = useState(`${new Date().getHours()}:${Math.ceil(new Date().getMinutes() / 10) * 10}`);
+    const [endingTime, setEndingTime] = useState(`${new Date().getHours()}:${Math.ceil(new Date().getMinutes() / 10) * 10}`);
+    const modalContainerRef = useRef(null);
 
     const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
     const notificationDefaultOption = 'No Notifications';
@@ -72,8 +73,38 @@ const AddTaskModal = ({ $isOpen}) => {
         console.log({name: name, color: color});
     }
 
+    const createTask = () => {
+        const task = {
+            name: name,
+            category: category,
+            location: location,
+            notification: notification,
+            repeat: repeat,
+            notes: notes,
+            date: date,
+            startingTime: startingTime,
+            endingTime: endingTime
+        }
+        console.log(task);
+    }
+
+    useEffect(() => {
+        const handleClickOutside = ({target}) => {
+            if(modalContainerRef.current && !modalContainerRef.current.contains(target)) $updateIsOpen(false);
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [$updateIsOpen])
+
+    const updateIsOpen = (newValue) => {
+        $updateIsOpen(newValue);
+    }
+
     return (
-        $isOpen && (
         <AddTaskContext.Provider
             value={{name, updateName,
                 category, updateCategory,
@@ -85,7 +116,7 @@ const AddTaskModal = ({ $isOpen}) => {
                 startingTime, updateStartingTime,
                 endingTime, updateEndingTime}}>
             <ModalWrapper>
-                <ModalContainer>
+                <ModalContainer ref={modalContainerRef}>
                     <Main>
                         <InfoContainer>
                             <FiCheckCircle size={18} />
@@ -99,7 +130,6 @@ const AddTaskModal = ({ $isOpen}) => {
                         <InfoContainer>
                             <TbCategory size={20} />
                             <SelectorWithAdd $defaultOption={categoryDefaultOption} $options={categoryOptions} $onAdd={addNewCategory}/>
-                            {/* <InputField value={category} onChange={(e) => updateCategory(e.target.value)} placeholder='Category' /> */}
                         </InfoContainer>
                         <InfoContainer>
                             <HiOutlineLocationMarker size={20} />
@@ -107,15 +137,15 @@ const AddTaskModal = ({ $isOpen}) => {
                         </InfoContainer>
                         <InfoContainer>
                             <MdOutlineNotifications size={21}/>
-                            <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions}></MultiSelector>
+                            <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)}></MultiSelector>
                         </InfoContainer>
                         <InfoContainer>
                             <TbRepeat size={20}/>
-                            <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions}></MultiSelector>
+                            <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)}></MultiSelector>
                         </InfoContainer>
                         <InfoContainer>
                             <MdNotes size={20} />
-                            <InputField value={notes} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
+                            <NotesInputField value={notes} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
                         </InfoContainer>
             
                         <ButtonContainer>
@@ -127,6 +157,7 @@ const AddTaskModal = ({ $isOpen}) => {
                                 $borderColor="primary"
                                 $fontWeight="bold"
                                 $animation="smallScale"
+                                $onClick={() => createTask()}
                             ></Button>
                             <Button
                                 $content={<>Cancel&nbsp;<IoMdClose size={24}/></>}
@@ -136,18 +167,19 @@ const AddTaskModal = ({ $isOpen}) => {
                                 $borderColor="red"
                                 $fontWeight="bold"
                                 $animation="scale"
+                                $onClick={() => updateIsOpen(false)}
                             ></Button>
                         </ButtonContainer>
                     </Main>
                 </ModalContainer>
             </ModalWrapper>
         </AddTaskContext.Provider>
-        )
-      );
+        );
 }
 
 AddTaskModal.propTypes = {
-    $isOpen: PropTypes.bool
+    $defaultName: PropTypes.string,
+    $updateIsOpen: PropTypes.func
 }
 
 const ModalWrapper = styled.div`
@@ -208,25 +240,18 @@ const InputField = styled.input`
         `}
 `
 
-const Select = styled.select`
-    position: ${({ $isOpen }) => ($isOpen ? "absolute" : "static")};
-    top: ${({ $isOpen }) => ($isOpen ? "2rem" : "auto")};
-    border: 1px solid transparent;
-    background-color: transparent;
-    padding: 0.5rem 1rem 0.5rem 1rem;
-    border-radius: 4px;
-    width: 100%;
+const NotesInputField = styled.textarea`
+    padding: 0px 10px 0px 10px;
+    width: 100%;  
+    transition: 0.2s;
+    height: 10rem;
+    resize: none;
 
-    & option:hover{
-        background-color: ${({theme}) => theme.colors.grey.main};
-    }
-
-    & option{
-        text-align: center;
-        padding: 0.4rem 0 0.4rem 0;
-        margin-bottom: 0.2rem;
-        border-radius: 4px;
-    }
+    ${({ $err }) =>
+        $err &&
+        css`
+        color:rgba(255, 0, 0, 0.474);
+        `}
 `
 
 const DateInputField = styled.input`

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 
-const MultiSelector = ({ $options, $defaultOption }) => {
+const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const multiSelectorRef = useRef(null);
@@ -10,8 +10,10 @@ const MultiSelector = ({ $options, $defaultOption }) => {
     const toggleOption = (option) => {
         if (selectedOptions.includes(option)) {
           setSelectedOptions(selectedOptions.filter((item) => item !== option));
+          $updateSelectedOptions(selectedOptions.filter((item) => item !== option))
         } else {
-          setSelectedOptions([...selectedOptions, option]);
+          setSelectedOptions([...selectedOptions, option])
+          $updateSelectedOptions([...selectedOptions, option]);
         }
     };
 
@@ -21,15 +23,15 @@ const MultiSelector = ({ $options, $defaultOption }) => {
         };
 
         const handleClickInside = () => {
-            setIsOpen(true);
+            if(multiSelectorRef.current) setIsOpen(true);
         };
         
         document.addEventListener('mousedown', handleClickOutside);
-        multiSelectorRef.current.addEventListener('mousedown', handleClickInside);
+        multiSelectorRef.current && multiSelectorRef.current.addEventListener('mousedown', handleClickInside);
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
-            multiSelectorRef.current.removeEventListener('mousedown', handleClickInside);
+            multiSelectorRef.current && multiSelectorRef.current.removeEventListener('mousedown', handleClickInside);
         }
     }, [isOpen])
 
@@ -50,7 +52,8 @@ const MultiSelector = ({ $options, $defaultOption }) => {
 
 MultiSelector.propTypes = {
     $options: PropTypes.array, 
-    $defaultOption: PropTypes.string
+    $defaultOption: PropTypes.string,
+    $updateSelectedOptions: PropTypes.func
 }
 
 const MultiSelectorWrapper = styled.div`
