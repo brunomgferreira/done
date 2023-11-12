@@ -6,19 +6,30 @@ import Button from '../components/elements/Button'
 import TasksStatsContainer from '../components/elements/TasksStatsContainer'
 import { FiCheckCircle, FiFilter, FiPlus } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
-import AddTaskModal from '../components/elements/AddTaskModal'
+import AddTaskModal from '../components/addTaskModal/AddTaskModal'
 
 const Tasks = () => {
 
 const [expandedTask, setExpandedTask] = useState(null);   
+const [openAddTaskModal, setOpenAddTaskModal] = useState(false);
+const [newTaskName, setNewTaskName] = useState("");
 
 const updateExpandedTask = (taskId) => {
     setExpandedTask(taskId);
 }
 
+const updateOpenAddTaskModal = (newValue) => {
+    setOpenAddTaskModal(newValue);
+    if(!newValue) updateNewTaskName("");
+}
+
+const updateNewTaskName = (newValue) => {
+    setNewTaskName(newValue);
+}
+
 return (
     <div>
-        <AddTaskModal isOpen={true}/>
+        {openAddTaskModal && <AddTaskModal $defaultName={newTaskName} $updateIsOpen={updateOpenAddTaskModal}/>}
         <Header></Header>
         <SecondHeaderWrapper>
             <SecondHeader>
@@ -87,13 +98,14 @@ return (
             <LeftContainer>
                 <ButtonWrapper>
                     <LeftButtonContainer>
-                        <InputField type="text" placeholder='New Task' />
+                        <InputField type="text" placeholder='New Task' value={newTaskName} onChange={(e) => updateNewTaskName(e.target.value)}/>
                         <Button
                             $content={<FiPlus size={20}/>}
                             $buttonStyle="roundIcon"
                             $animation="scale"
                             $color="primary"
                             $fontColor="white"
+                            $onClick={() => updateOpenAddTaskModal(true)}
                         ></Button>
                     </LeftButtonContainer>
                     <RightButtonContainer>
