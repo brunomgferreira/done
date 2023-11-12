@@ -29,11 +29,11 @@ const TimeIntervalSelect = ({$updateStartingTime, $updateEndingTime}) => {
      return (
         <TimeIntervalContainer>
             <InfoContainer> 
-                <IoTimeOutline size={30}/>
+                <IoTimeOutline size={22}/>
                 <TimePicker $minTime={minTime} $value={startingTime} $updateTime={(newValue) => updateStartingTime(newValue)} placeholder='Starting Time'/>
             </InfoContainer>
             <InfoContainer> 
-                <IoTimeOutline size={30}/>
+                <IoTimeOutline size={22}/>
                 <TimePicker $minTime={startingTime} $value={endingTime} $updateTime={(newValue) => updateEndingTime(newValue)} placeholder='Starting Time'/>
             </InfoContainer>
         </TimeIntervalContainer>
