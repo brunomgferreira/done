@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 import Button from './Button'
@@ -6,12 +6,15 @@ import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { MdNotes, MdOutlineNotifications } from 'react-icons/md'
 import { FiCheckCircle, FiCircle, FiEdit, FiShare2 } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
-import { IoTimeOutline } from 'react-icons/io5'
+import { IoTimeOutline, IoCalendarOutline } from 'react-icons/io5'
 import { TbCategory, TbRepeat } from 'react-icons/tb'
 import { HiOutlineLocationMarker } from 'react-icons/hi'
+import SelectorWithAdd from '../addTaskModal/SelectorWithAdd'
+import MultiSelector from '../addTaskModal/MultiSelector'
 
 const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes}) => {
   const [isActive, setIsActive] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
   const toggleExpand = () => {
     if($isExpanded) collapseTask();
@@ -30,10 +33,84 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
     setIsActive(!isActive);
   };
 
+  const toggleEditing = () => {
+    setIsEditing(!isEditing);
+  }
+
+  const [taskName, setTaskName] = useState($taskName);
+  const [date, setDate] = useState($date);
+  const [startingTime, setStartingTime] = useState($startingTime);
+  const [endingTime, setEndingTime] = useState($endingTime);
+  const [category, setCategory] = useState($category);
+  const [location, setLocation] = useState($location);
+  const [notification, setNotification] = useState($notification);
+  const [repeat, setRepeat] = useState($repeat);
+  const [notes, setNotes] = useState($notes);
+
+  const updateTaskName = (newValue) => {
+    setTaskName(newValue);
+  }
+
+  const updateDate = (newValue) => {
+    setDate(newValue);
+  }
+
+  const updateStartingTime = (newValue) => {
+    setStartingTime(newValue);
+  }
+
+  const updateEndingTime = (newValue) => {
+    setEndingTime(newValue);
+  }
+
+  const updateCategory = (newValue) => {
+    setCategory(newValue);
+  }
+
+  const updateLocation = (newValue) => {
+    setLocation(newValue);
+  }
+
+  const updateNotification = (newValue) => {
+    setNotification(newValue);
+  }
+
+  const updateRepeat = (newValue) => {
+    setRepeat(newValue);
+  }
+
+  const updateNotes = (newValue) => {
+    setNotes(newValue);
+  }
+
+
+  const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
+  const notificationDefaultOption = 'No Notifications';
+  const repeatOptions = ['Every Day', 'Every Week', 'Every Month', 'Every Year'];
+  const repeatDefaultOption = 'No Repeat';
+  const categoryOptions = [{name: 'My tasks', color: '#000000'}, {name: 'Every Day', color: '#000000'}, {name: 'Every Week', color: '#FFFFFF'}, {name: 'Every Month', color: '#AABBFF'}];
+
+  const addNewCategory = (name, color) => {
+    console.log({name: name, color: color});
+  }
+
+  useEffect(() => {
+    setTaskName($taskName);
+    setDate($date);
+    setStartingTime($startingTime);
+    setEndingTime($endingTime);
+    setCategory($category);
+    setLocation($location);
+    setNotification($notification);
+    updateRepeat($repeat);
+    setNotes($notes);
+
+  }, [$taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes, isEditing, $isExpanded]);
+
   return (
     <TaskContainer>
       <Header $isExpanded={$isExpanded} $active={isActive}>
-        <LeftSide $isExpanded={$isExpanded}>
+        <LeftSide>
           {!$isExpanded &&
           (<Button
             $content={isActive ? <FiCircle size={22} /> : <FiCheckCircle size={22} />}
@@ -41,11 +118,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
             $animation="scale"
             $onClick={() => toggleActive()}
           ></Button>)}
-          <DayTimeContainer>
-            {$isExpanded && <IoTimeOutline size={20}/>}
-            <Day $isExpanded={$isExpanded}>{$date}</Day>
-            <Time $isExpanded={$isExpanded}>{$startingTime} - {$endingTime}</Time>
-          </DayTimeContainer>
+          {!$isExpanded && <Time>{$startingTime} - {$endingTime}</Time>}
           <h4>{$taskName}</h4>
         </LeftSide>
         <RightSide>
@@ -58,32 +131,73 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
         </RightSide>
       </Header>
       <Main $isExpanded={$isExpanded}>
-        {$category && 
         <InfoContainer $active={isActive}>
-          <TbCategory size={20} />
-          <Info>&nbsp;&nbsp;{$category}</Info>
-        </InfoContainer>}
-        {$location &&
+          <IoCalendarOutline size={20}/>
+          <Day $isExpanded={$isExpanded}>{$date}</Day>
+        </InfoContainer>
         <InfoContainer $active={isActive}>
-          <HiOutlineLocationMarker size={20} />
-          <Info>&nbsp;&nbsp;{$location}</Info>
-        </InfoContainer>}
-        {$notification &&
-        <InfoContainer $active={isActive}>
-          <MdOutlineNotifications size={21}/>
-          <Info>&nbsp;&nbsp;{$notification}</Info>
-        </InfoContainer>}
-        {$repeat &&
-        <InfoContainer $active={isActive}>
-          <TbRepeat size={20}/>
-          <Info>&nbsp;&nbsp;{$repeat}</Info>
-        </InfoContainer>}
-        {$notes && 
-        <InfoContainer $active={isActive}>
-          <MdNotes size={20} />
-          <Info>&nbsp;&nbsp;{$notes}</Info>
-        </InfoContainer>}
-        
+          <IoTimeOutline size={20}/>
+          <Time>&nbsp;&nbsp;{startingTime} - {endingTime}</Time>
+        </InfoContainer>
+        {!isEditing &&
+        <>
+          {category   && 
+          <InfoContainer $active={isActive}>
+            <TbCategory size={20} />
+            <Info>&nbsp;&nbsp;{category.name}</Info>
+          </InfoContainer>}
+          {location &&
+          <InfoContainer $active={isActive}>
+            <HiOutlineLocationMarker size={20} />
+            <Info>&nbsp;&nbsp;{location}</Info>
+          </InfoContainer>}
+          {notification &&
+          <InfoContainer $active={isActive}>
+            <MdOutlineNotifications size={21}/>
+            <Info>&nbsp;&nbsp;{notification}</Info>
+          </InfoContainer>}
+          {repeat &&
+          <InfoContainer $active={isActive}>
+            <TbRepeat size={20}/>
+            <Info>&nbsp;&nbsp;
+              {repeat.join(', ')}
+            </Info>
+          </InfoContainer>}
+          {notes && 
+          <InfoContainer $active={isActive}>
+            <MdNotes size={20} />
+            <Info>&nbsp;&nbsp;{notes}</Info>
+          </InfoContainer>}
+        </>}
+        {isEditing &&
+        <>
+          <InfoContainer $active={isActive} $isEditing={isEditing}>
+            <TbCategory size={20} />
+            <>&nbsp;&nbsp;</>
+            <SelectorWithAdd $selectedOption={category} $options={categoryOptions} $onAdd={addNewCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
+          </InfoContainer>
+          <InfoContainer $active={isActive} $isEditing={isEditing}>
+            <HiOutlineLocationMarker size={20} />
+            <>&nbsp;&nbsp;</>
+            <InputField type="location" value={location} onChange={(e) => updateLocation(e.target.value)} placeholder='Location' />
+          </InfoContainer>
+          <InfoContainer $active={isActive} $isEditing={isEditing}>
+            <MdOutlineNotifications size={21}/>
+            <>&nbsp;&nbsp;</>
+            <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)} $selectedOptions={notification}></MultiSelector>
+          </InfoContainer>
+          <InfoContainer $active={isActive} $isEditing={isEditing}>
+            <TbRepeat size={20}/>
+            <>&nbsp;&nbsp;</>
+            <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)} $selectedOptions={repeat}></MultiSelector>
+          </InfoContainer>
+          <InfoContainer $active={isActive} $isEditing={isEditing}>
+            <MdNotes size={20} />
+            <>&nbsp;&nbsp;</>
+            <NotesInputField value={notes} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
+          </InfoContainer>
+        </>}
+
         <ButtonContainer $active={isActive}>
           {isActive &&
             <>
@@ -103,6 +217,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
                 $fontColor={"primary"}
                 $fontWeight={"bold"}
                 $animation="scale"
+                $onClick={() => toggleEditing()}
               ></Button>
             </>
           }
@@ -131,13 +246,13 @@ Task.propTypes = {
   $isExpanded:PropTypes.bool,  
   $updateExpandedTask: PropTypes.func,
   $taskName: PropTypes.string,
-  $category: PropTypes.string,
+  $category: PropTypes.object,
   $date: PropTypes.string,
   $startingTime: PropTypes.string,
   $endingTime: PropTypes.string,
   $location: PropTypes.string,
-  $notification: PropTypes.string,
-  $repeat: PropTypes.string,
+  $notification: PropTypes.array,
+  $repeat: PropTypes.array,
   $notes: PropTypes.string,
 }
 
@@ -152,6 +267,7 @@ const TaskContainer = styled.div`
   border-radius: 3rem;
   box-shadow: 5px 5px 5px ${({theme}) => (theme.colors.shadow.main)};
   transition: 0.2s ease-in-out;
+  background-color: white;
 `
 
 const Header = styled.div`
@@ -187,7 +303,6 @@ const Main = styled.div`
   text-align: start;
   opacity: 0;
   height: 0;
-  overflow: hidden;
   transition: 0.10s ease-in-out;
 
   ${({$isExpanded}) => 
@@ -213,12 +328,46 @@ const InfoContainer = styled.div`
       background-color: transparent;
       text-decoration: line-through;
   `}
+
+  ${({ $isEditing }) =>
+  $isEditing &&
+  css`
+    padding-bottom: 10px;
+    border-bottom: 1px solid ${({theme}) => theme.colors.grey.main};
+  `}
+  
 `
 
-const Info = styled.p`
+const Info = styled.div`
   width: 100%;
   text-align: start;
   word-wrap: break-word;
+`
+
+const InputField = styled.input`
+  width: 100%;  
+  transition: 0.2s;
+  background-color: transparent;
+
+  ${({ $err }) =>
+      $err &&
+      css`
+      color:rgba(255, 0, 0, 0.474);
+      `}
+`
+
+const NotesInputField = styled.textarea`
+  width: 100%;  
+  transition: 0.2s;
+  height: 10rem;
+  resize: none;
+  background-color: none;
+
+  ${({ $err }) =>
+      $err &&
+      css`
+      color:rgba(255, 0, 0, 0.474);
+      `}
 `
 
 const ButtonContainer = styled.div`
@@ -246,15 +395,6 @@ const LeftSide = styled.div`
   align-items: center;
   gap: 2rem;
   transition: 0.1s;
-
-  ${({$isExpanded}) => 
-  $isExpanded && css`
-    flex-direction: column-reverse;
-    align-items: start;
-    gap:1rem;
-    padding-top:0.5rem;
-  `}
-
 `
 
 const RightSide = styled.div`
