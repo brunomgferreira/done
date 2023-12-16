@@ -2,20 +2,31 @@ import React, { useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 
-const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions }) => {
+const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions, $selectedOptions }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState($selectedOptions);
     const multiSelectorRef = useRef(null);
 
     const toggleOption = (option) => {
-        if (selectedOptions.includes(option)) {
-          setSelectedOptions(selectedOptions.filter((item) => item !== option));
-          $updateSelectedOptions(selectedOptions.filter((item) => item !== option))
-        } else {
-          setSelectedOptions([...selectedOptions, option])
-          $updateSelectedOptions([...selectedOptions, option]);
+
+        if(option === $defaultOption) {
+            setSelectedOptions([$defaultOption]);
         }
+        else if (selectedOptions.includes(option)) {
+            setSelectedOptions((prevState) => prevState.filter((item) => item !== option));
+        } else {
+            if($selectedOptions.includes($defaultOption)) {
+                setSelectedOptions([]);
+            }
+            setSelectedOptions((prevState) => [...prevState, option]);
+        }
+        $updateSelectedOptions(selectedOptions);
     };
+
+
+    useEffect(() => {
+        $updateSelectedOptions(selectedOptions);
+    }, [selectedOptions]);
 
     useEffect(() => {
         const handleClickOutside = ({target}) => {
@@ -37,10 +48,10 @@ const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions }) => 
 
     return (
         <MultiSelectorWrapper ref={multiSelectorRef}>
-            <InputField type="text" value={selectedOptions.length == 0 ? $defaultOption : selectedOptions.join(', ')} readOnly onFocus={() => setIsOpen(true)} $defaultOption={$defaultOption}/>
+            <InputField type="text" value={selectedOptions.join(', ')} readOnly onFocus={() => setIsOpen(true)} $defaultOption={$defaultOption}/>
             {isOpen && 
                 <OptionsContainer>
-                    <Option onClick={() => {setSelectedOptions([]); setIsOpen(false);}} selected={selectedOptions.length == 0}>{$defaultOption}</Option>
+                    <Option onClick={() => {toggleOption($defaultOption); setIsOpen(false);}} selected={selectedOptions.includes($defaultOption)}>{$defaultOption}</Option>
                     {$options.map((option) => (
                         <Option key={option} onClick={() => toggleOption(option)} selected={selectedOptions.includes(option)}>{option}</Option>
                     ))}
@@ -53,12 +64,12 @@ const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions }) => 
 MultiSelector.propTypes = {
     $options: PropTypes.array, 
     $defaultOption: PropTypes.string,
-    $updateSelectedOptions: PropTypes.func
+    $updateSelectedOptions: PropTypes.func,
+    $selectedOptions: PropTypes.array
 }
 
 const MultiSelectorWrapper = styled.div`
     position: relative;
-    padding: 10px 10px;
     width: 100%;
 ` 
 

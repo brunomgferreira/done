@@ -4,9 +4,9 @@ import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 import Button from '../elements/Button';
 
-const SelectorWithAdd = ({ $options, $defaultOption, $onAdd}) => {
+const SelectorWithAdd = ({ $options, $onAdd, $selectedOption, $updateSelectedOption}) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState("");
+    const [selectedOption, setSelectedOption] = useState($selectedOption ? $selectedOption : "");
     const [newOptionName, setNewOptionName] = useState("");
     const [newOptionColor, setNewOptionColor] = useState("#000000");
 
@@ -22,8 +22,11 @@ const SelectorWithAdd = ({ $options, $defaultOption, $onAdd}) => {
     const SelectorRef = useRef(null);
 
     const toggleOption = (option) => {
-        setSelectedOption(option.name);
-        setIsOpen(false);
+        setSelectedOption(option);
+        if($updateSelectedOption) {
+            $updateSelectedOption(option);
+        }
+        setIsOpen(false);   
     };
 
     useEffect(() => {
@@ -46,13 +49,12 @@ const SelectorWithAdd = ({ $options, $defaultOption, $onAdd}) => {
 
     return (
         <SelectorWrapper ref={SelectorRef}>
-            <InputField type="text" value={selectedOption == "" ? $defaultOption.name : selectedOption} readOnly onFocus={() => setIsOpen(true)} $defaultOption={$defaultOption.name}/>
+            <InputField type="text" value={selectedOption.name} readOnly onFocus={() => setIsOpen(true)}/>
             {isOpen && 
                 <Container>
                     <OptionsContainer>
-                        <Option onClick={() => {setSelectedOption([]);setIsOpen(false);}} selected={selectedOption.length == 0}>{$defaultOption.name}<Color $color={$defaultOption.color}></Color></Option>
                         {$options.map((option) => (
-                            <Option key={option.name} onClick={() => toggleOption(option)} selected={selectedOption == option.name}>{option.name}<Color $color={option.color}></Color></Option>
+                            <Option key={option.name} onClick={() => toggleOption(option)} selected={selectedOption.name == option.name}>{option.name}<Color $color={option.color}></Color></Option>
                         ))}
                     </OptionsContainer>
                     <AddOptionContainer>
@@ -75,14 +77,14 @@ const SelectorWithAdd = ({ $options, $defaultOption, $onAdd}) => {
 }
 
 SelectorWithAdd.propTypes = {
-    $options: PropTypes.array, 
-    $defaultOption: PropTypes.object,
-    $onAdd: PropTypes.func
+    $options: PropTypes.array,
+    $selectedOption: PropTypes.object,
+    $onAdd: PropTypes.func,
+    $updateSelectedOption: PropTypes.func
 }
 
 const SelectorWrapper = styled.div`
     position: relative;
-    padding: 10px 10px;
     width: 100%;
 ` 
 
@@ -90,12 +92,6 @@ const InputField = styled.input`
     width: 100%;
     overflow: scroll;
     cursor: pointer;
-
-    ${({value, $defaultOption}) => (
-        value == $defaultOption && css`
-            color: #616262;
-        `
-    )}
 `
 
 const ColorPicker = styled.input`

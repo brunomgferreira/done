@@ -132,9 +132,9 @@ return (
                         ></Button>
                     </RightButtonContainer>     
                 </ButtonWrapper>
-                <Task $taskId={"1"} $isExpanded={expandedTask == 1} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
-                <Task $taskId={"2"} $isExpanded={expandedTask == 2} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
-                <Task $taskId={"3"} $isExpanded={expandedTask == 3} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={"My tasks"} $location={"My tasks"} $notification={"My tasks"} $repeat={"My tasks"} $notes={"My tasks"}></Task>
+                <Task $taskId={"1"} $isExpanded={expandedTask == 1} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"Every Day", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["Every Day", "Every Year"]} $notes={"My tasks"}></Task>
+                <Task $taskId={"2"} $isExpanded={expandedTask == 2} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"My tasks", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["No Repeat"]} $notes={"My tasks"}></Task>
+                <Task $taskId={"3"} $isExpanded={expandedTask == 3} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"My tasks", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["No Repeat"]} $notes={"My tasks"}></Task>
             </LeftContainer>
             <TasksStatsContainer />
         </MainWrapper>

@@ -15,23 +15,23 @@ import SelectorWithAdd from './SelectorWithAdd';
 const AddTaskContext = createContext();
 
 const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
+    const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
+    const notificationDefaultOption = 'No Notifications';
+    const repeatOptions = ['Every Day', 'Every Week', 'Every Month', 'Every Year'];
+    const repeatDefaultOption = 'No Repeat';
+    const categoryOptions = [{name: 'My tasks', color: '#000000'}, {name: 'Every Day', color: '#000000'}, {name: 'Every Week', color: '#FFFFFF'}, {name: 'Every Month', color: '#AABBFF'}];
+    const categoryDefaultOption = {name: 'My tasks', color: '#000000'};
+
     const [name, setName] = useState($defaultName);
-    const [category, setCategory] = useState("");
+    const [category, setCategory] = useState(categoryDefaultOption);
     const [location, setLocation] = useState("");
-    const [notification, setNotification] = useState([]);
-    const [repeat, setRepeat] = useState([]);
+    const [notification, setNotification] = useState([notificationDefaultOption]);
+    const [repeat, setRepeat] = useState([repeatDefaultOption]);
     const [notes, setNotes] = useState("");
     const [date , setDate] = useState(new Date().toISOString().split("T")[0]);
     const [startingTime, setStartingTime] = useState(`${new Date().getHours()}:${Math.ceil(new Date().getMinutes() / 10) * 10}`);
     const [endingTime, setEndingTime] = useState(`${new Date().getHours()}:${Math.ceil(new Date().getMinutes() / 10) * 10}`);
     const modalContainerRef = useRef(null);
-
-    const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
-    const notificationDefaultOption = 'No Notifications';
-    const repeatOptions = ['Every Day', 'Every Week', 'Every Month', 'Every Year'];
-    const repeatDefaultOption = 'No Repeat';
-    const categoryOptions = [{name: 'Every Day', color: '#000000'}, {name: 'Every Week', color: '#FFFFFF'}, {name: 'Every Month', color: '#AABBFF'}];
-    const categoryDefaultOption = {name: 'No Repeat', color: '#000000'};
 
     const updateName = (newValue) => {
         setName(newValue);
@@ -129,7 +129,7 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
                         <TimeIntervalSelect $updateStartingTime={(newValue) => updateStartingTime(newValue)} $updateEndingTime={(newValue) => updateEndingTime(newValue)} />
                         <InfoContainer>
                             <TbCategory size={20} />
-                            <SelectorWithAdd $defaultOption={categoryDefaultOption} $options={categoryOptions} $onAdd={addNewCategory}/>
+                            <SelectorWithAdd $selectedOption={categoryDefaultOption} $options={categoryOptions} $onAdd={addNewCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
                         </InfoContainer>
                         <InfoContainer>
                             <HiOutlineLocationMarker size={20} />
@@ -137,11 +137,11 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
                         </InfoContainer>
                         <InfoContainer>
                             <MdOutlineNotifications size={21}/>
-                            <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)}></MultiSelector>
+                            <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions} $selectedOptions={notification} $updateSelectedOptions={(newValue) => updateNotification(newValue)}></MultiSelector>
                         </InfoContainer>
                         <InfoContainer>
                             <TbRepeat size={20}/>
-                            <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)}></MultiSelector>
+                            <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions} $selectedOptions={repeat} $updateSelectedOptions={(newValue) => updateRepeat(newValue)}></MultiSelector>
                         </InfoContainer>
                         <InfoContainer>
                             <MdNotes size={20} />
@@ -223,13 +223,13 @@ const InfoContainer = styled.div`
   justify-content: start;
   align-items: center;
   width: 100%;
-  gap: 1rem;
+  gap: 2rem;
   border-bottom: 1px solid ${({theme}) => theme.colors.grey.main};
-  padding: 0.5rem 2rem 0.5rem 2rem;
+  padding: 0.5rem 2rem 1.5rem 2rem;
 `
 
 const InputField = styled.input`
-    padding: 10px 10px;
+    padding: 0px 10px 0px 0px;
     width: 100%;  
     transition: 0.2s;
 
@@ -241,7 +241,7 @@ const InputField = styled.input`
 `
 
 const NotesInputField = styled.textarea`
-    padding: 0px 10px 0px 10px;
+    padding: 0px 10px 0px 0px;
     width: 100%;  
     transition: 0.2s;
     height: 10rem;
@@ -255,7 +255,7 @@ const NotesInputField = styled.textarea`
 `
 
 const DateInputField = styled.input`
-    padding: 10px 10px;
+    padding: 0px 10px 0px 0px;
     width: 100%;  
     transition: 0.2s;
 
