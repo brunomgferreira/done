@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components'
 import Button from './Button'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { MdNotes, MdOutlineNotifications } from 'react-icons/md'
-import { FiCheckCircle, FiCircle, FiEdit, FiShare2 } from 'react-icons/fi'
+import { FiCheckCircle, FiCircle, FiEdit, FiShare2, FiXCircle } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
 import { IoTimeOutline, IoCalendarOutline } from 'react-icons/io5'
 import { TbCategory, TbRepeat } from 'react-icons/tb'
@@ -83,6 +83,20 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
     setNotes(newValue);
   }
 
+  const editTask = () => {
+    const task = {
+        name: name,
+        category: category,
+        location: location,
+        notification: notification,
+        repeat: repeat,
+        notes: notes,
+        date: date,
+        startingTime: startingTime,
+        endingTime: endingTime
+    }
+    console.log(task);
+  }
 
   const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
   const notificationDefaultOption = 'No Notifications';
@@ -109,7 +123,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
 
   return (
     <TaskContainer>
-      <Header $isExpanded={$isExpanded} $active={isActive}>
+      <Header $isExpanded={$isExpanded} $isEditing={isEditing} $active={isActive}>
         <LeftSide>
           {!$isExpanded &&
           (<Button
@@ -122,12 +136,13 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
           <h4>{$taskName}</h4>
         </LeftSide>
         <RightSide>
+          {!isEditing &&
           <Button
             $content={$isExpanded ? <IoIosArrowUp size={26}/> : <IoIosArrowDown size={26}/>}
             $buttonStyle="icon"
             $animation="scale"
             $onClick={() => toggleExpand()}
-          ></Button>
+          ></Button>}
         </RightSide>
       </Header>
       <Main $isExpanded={$isExpanded}>
@@ -198,8 +213,8 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
           </InfoContainer>
         </>}
 
-        <ButtonContainer $active={isActive}>
-          {isActive &&
+        <ButtonContainer $active={isActive} $isEditing={isEditing}>
+          {isActive && !isEditing &&
             <>
               <Button 
                 $content={<>Done<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
@@ -221,20 +236,49 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
               ></Button>
             </>
           }
-          <Button
-            $content={<>Share<span>&nbsp;&nbsp;</span><FiShare2 size={20} /></>}
-            $buttonStyle="text"
-            $fontColor={"primary"}
-            $fontWeight={"bold"}
-            $animation="scale"
-          ></Button>
-          <Button
-            $content={<>Delete<span>&nbsp;&nbsp;</span><HiOutlineTrash size={20} /></>}
-            $buttonStyle="text"
-            $fontColor={"primary"}
-            $fontWeight={"bold"}
-            $animation="scale"
-          ></Button>
+          {!isEditing &&
+            <>
+              <Button
+                $content={<>Share<span>&nbsp;&nbsp;</span><FiShare2 size={20} /></>}
+                $buttonStyle="text"
+                $fontColor={"primary"}
+                $fontWeight={"bold"}
+                $animation="scale"
+              ></Button>
+              <Button
+                $content={<>Delete<span>&nbsp;&nbsp;</span><HiOutlineTrash size={20} /></>}
+                $buttonStyle="text"
+                $fontColor={"primary"}
+                $fontWeight={"bold"}
+                $animation="scale"
+              ></Button> 
+            </> 
+          }
+          {isEditing &&
+            <>
+              <Button
+                $content={<>Confirm<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
+                $buttonStyle="text"
+                $fontColor={"primary"}
+                $fontWeight={"bold"}
+                $animation="scale"
+                $onClick={() =>{
+                  editTask();
+                  toggleEditing();
+                  toggleExpand();}}
+              ></Button>
+              <Button
+                $content={<>Cancel<span>&nbsp;&nbsp;</span><FiXCircle size={20} /></>}
+                $buttonStyle="text"
+                $fontColor={"primary"}
+                $fontWeight={"bold"}
+                $animation="scale"
+                $onClick={() =>{
+                  toggleEditing();
+                  toggleExpand();}}
+              ></Button>
+            </>
+          }
         </ButtonContainer>
       </Main>
     </TaskContainer>
@@ -277,6 +321,7 @@ const Header = styled.div`
   justify-content: space-between;
   gap: 3rem;     
   width: 100%;
+  height: 2rem;
 
   ${({$isExpanded}) => 
   $isExpanded && css`
@@ -286,9 +331,9 @@ const Header = styled.div`
   ${({ $active }) =>
   !$active &&
   css`
-      color: ${({theme}) => (theme.colors.grey.dark)};
-      background-color: transparent;
-      text-decoration: line-through;
+    color: ${({theme}) => (theme.colors.grey.dark)};
+    background-color: transparent;
+    text-decoration: line-through;
   `}
 `
 
@@ -381,8 +426,8 @@ const ButtonContainer = styled.div`
   /* padding: 0 2rem 0 2rem;  */
   width: 100%;
 
-  ${({$active}) => 
-    !$active && css`
+  ${({$active, $isEditing}) => 
+    (!$active || $isEditing) && css`
       padding: 0 10rem 0 10rem; 
       padding-top: 2rem;
     `
