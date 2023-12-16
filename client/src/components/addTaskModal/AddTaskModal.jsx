@@ -223,13 +223,13 @@ const InfoContainer = styled.div`
   justify-content: start;
   align-items: center;
   width: 100%;
-  gap: 1rem;
+  gap: 2rem;
   border-bottom: 1px solid ${({theme}) => theme.colors.grey.main};
-  padding: 0.5rem 2rem 0.5rem 2rem;
+  padding: 0.5rem 2rem 1.5rem 2rem;
 `
 
 const InputField = styled.input`
-    padding: 10px 10px;
+    padding: 0px 10px 0px 0px;
     width: 100%;  
     transition: 0.2s;
 
@@ -241,7 +241,7 @@ const InputField = styled.input`
 `
 
 const NotesInputField = styled.textarea`
-    padding: 0px 10px 0px 10px;
+    padding: 0px 10px 0px 0px;
     width: 100%;  
     transition: 0.2s;
     height: 10rem;
@@ -255,7 +255,7 @@ const NotesInputField = styled.textarea`
 `
 
 const DateInputField = styled.input`
-    padding: 10px 10px;
+    padding: 0px 10px 0px 0px;
     width: 100%;  
     transition: 0.2s;
 
