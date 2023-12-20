@@ -13,6 +13,8 @@ const Tasks = () => {
 const [expandedTask, setExpandedTask] = useState(null);   
 const [openAddTaskModal, setOpenAddTaskModal] = useState(false);
 const [newTaskName, setNewTaskName] = useState("");
+const [selectedWeekDay, setSelectedWeekDay] = useState("TODAY");
+const [isEditingTask, setIsEditingTask] = useState(false);
 
 const updateExpandedTask = (taskId) => {
     setExpandedTask(taskId);
@@ -27,26 +29,37 @@ const updateNewTaskName = (newValue) => {
     setNewTaskName(newValue);
 }
 
+const updateSelectedWeekDay = (newValue) => {
+    setSelectedWeekDay(newValue);
+}
+
+const updateIsEditing = (newValue) => {
+    setIsEditingTask(newValue);
+}
+
 return (
     <div>
         {openAddTaskModal && <AddTaskModal $defaultName={newTaskName} $updateIsOpen={updateOpenAddTaskModal}/>}
         <Header></Header>
         <SecondHeaderWrapper>
             <SecondHeader>
-                <Date>16 OCT.</Date>
+                <Date>16 OCT.
+                </Date>
                 <Navbar>
                     <Button 
                         $content="TODAY"
                         $buttonStyle="icon"
-                        $fontColor={true ? "primary" : "black"}
-                        $fontWeight={true ? "bold" : "normal"}
+                        $fontColor={"TODAY"==selectedWeekDay ? "primary" : "black"}
+                        $fontWeight={"TODAY"==selectedWeekDay ? "bold" : "normal"}
+                        $onClick={() => updateSelectedWeekDay("TODAY")}
                         $animation="scale"
                     ></Button>
                     <Button 
                         $content="MON"
                         $buttonStyle="icon"
-                        $fontColor={false ? "primary" : "black"}
-                        $fontWeight={false ? "bold" : "normal"}
+                        $fontColor={"MON"==selectedWeekDay ? "primary" : "black"}
+                        $fontWeight={"MON"==selectedWeekDay ? "bold" : "normal"}
+                        $onClick={() => updateSelectedWeekDay("MON")}
                         $animation="scale"
                     ></Button>
                     <Button 
@@ -132,9 +145,9 @@ return (
                         ></Button>
                     </RightButtonContainer>     
                 </ButtonWrapper>
-                <Task $taskId={"1"} $isExpanded={expandedTask == 1} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"Every Day", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["Every Day", "Every Year"]} $notes={"My tasks"}></Task>
-                <Task $taskId={"2"} $isExpanded={expandedTask == 2} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"My tasks", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["No Repeat"]} $notes={"My tasks"}></Task>
-                <Task $taskId={"3"} $isExpanded={expandedTask == 3} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"My tasks", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["No Repeat"]} $notes={"My tasks"}></Task>
+                <Task $taskId={"1"} $isExpanded={expandedTask == 1} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"Every Day", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["Every Day", "Every Year"]} $notes={"My tasks"} $isEditing={isEditingTask} $updateIsEditing={updateIsEditing}></Task>
+                <Task $taskId={"2"} $isExpanded={expandedTask == 2} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"Every Day", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["Every Day", "Every Year"]} $notes={"My tasks"} $isEditing={isEditingTask} $updateIsEditing={updateIsEditing}></Task>
+                <Task $taskId={"3"} $isExpanded={expandedTask == 3} $updateExpandedTask={updateExpandedTask} $date={"16/10/23"} $startingTime={"9:00"} $endingTime={"10:00"} $taskName={"Task Name"} $category={{name:"Every Day", color:"#000"}} $location={"My tasks"} $notification={['No Notifications']} $repeat={["Every Day", "Every Year"]} $notes={"My tasks"} $isEditing={isEditingTask} $updateIsEditing={updateIsEditing}></Task>
             </LeftContainer>
             <TasksStatsContainer />
         </MainWrapper>

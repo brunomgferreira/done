@@ -12,9 +12,9 @@ import { HiOutlineLocationMarker } from 'react-icons/hi'
 import SelectorWithAdd from '../addTaskModal/SelectorWithAdd'
 import MultiSelector from '../addTaskModal/MultiSelector'
 
-const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes}) => {
+const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes, $isEditing, $updateIsEditing}) => {
   const [isActive, setIsActive] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState($isEditing);
 
   const toggleExpand = () => {
     if($isExpanded) collapseTask();
@@ -35,6 +35,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
 
   const toggleEditing = () => {
     setIsEditing(!isEditing);
+    $updateIsEditing(!isEditing);
   }
 
   const [taskName, setTaskName] = useState($taskName);
@@ -118,6 +119,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
     setNotification($notification);
     updateRepeat($repeat);
     setNotes($notes);
+    setIsEditing($isEditing);
 
   }, [$taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes, isEditing, $isExpanded]);
 
@@ -145,142 +147,144 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
           ></Button>}
         </RightSide>
       </Header>
-      <Main $isExpanded={$isExpanded}>
-        <InfoContainer $active={isActive}>
-          <IoCalendarOutline size={20}/>
-          <Day $isExpanded={$isExpanded}>{$date}</Day>
-        </InfoContainer>
-        <InfoContainer $active={isActive}>
-          <IoTimeOutline size={20}/>
-          <Time>&nbsp;&nbsp;{startingTime} - {endingTime}</Time>
-        </InfoContainer>
-        {!isEditing &&
-        <>
-          {category   && 
+      {$isExpanded &&
+        <Main $isExpanded={$isExpanded}>
           <InfoContainer $active={isActive}>
-            <TbCategory size={20} />
-            <Info>&nbsp;&nbsp;{category.name}</Info>
-          </InfoContainer>}
-          {location &&
+            <IoCalendarOutline size={20}/>
+            <Day $isExpanded={$isExpanded}>{$date}</Day>
+          </InfoContainer>
           <InfoContainer $active={isActive}>
-            <HiOutlineLocationMarker size={20} />
-            <Info>&nbsp;&nbsp;{location}</Info>
-          </InfoContainer>}
-          {notification &&
-          <InfoContainer $active={isActive}>
-            <MdOutlineNotifications size={21}/>
-            <Info>&nbsp;&nbsp;{notification}</Info>
-          </InfoContainer>}
-          {repeat &&
-          <InfoContainer $active={isActive}>
-            <TbRepeat size={20}/>
-            <Info>&nbsp;&nbsp;
-              {repeat.join(', ')}
-            </Info>
-          </InfoContainer>}
-          {notes && 
-          <InfoContainer $active={isActive}>
-            <MdNotes size={20} />
-            <Info>&nbsp;&nbsp;{notes}</Info>
-          </InfoContainer>}
-        </>}
-        {isEditing &&
-        <>
-          <InfoContainer $active={isActive} $isEditing={isEditing}>
-            <TbCategory size={20} />
-            <>&nbsp;&nbsp;</>
-            <SelectorWithAdd $selectedOption={category} $options={categoryOptions} $onAdd={addNewCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
+            <IoTimeOutline size={20}/>
+            <Time>&nbsp;&nbsp;{startingTime} - {endingTime}</Time>
           </InfoContainer>
-          <InfoContainer $active={isActive} $isEditing={isEditing}>
-            <HiOutlineLocationMarker size={20} />
-            <>&nbsp;&nbsp;</>
-            <InputField type="location" value={location} onChange={(e) => updateLocation(e.target.value)} placeholder='Location' />
-          </InfoContainer>
-          <InfoContainer $active={isActive} $isEditing={isEditing}>
-            <MdOutlineNotifications size={21}/>
-            <>&nbsp;&nbsp;</>
-            <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)} $selectedOptions={notification}></MultiSelector>
-          </InfoContainer>
-          <InfoContainer $active={isActive} $isEditing={isEditing}>
-            <TbRepeat size={20}/>
-            <>&nbsp;&nbsp;</>
-            <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)} $selectedOptions={repeat}></MultiSelector>
-          </InfoContainer>
-          <InfoContainer $active={isActive} $isEditing={isEditing}>
-            <MdNotes size={20} />
-            <>&nbsp;&nbsp;</>
-            <NotesInputField value={notes} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
-          </InfoContainer>
-        </>}
-
-        <ButtonContainer $active={isActive} $isEditing={isEditing}>
-          {isActive && !isEditing &&
-            <>
-              <Button 
-                $content={<>Done<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
-                $buttonStyle="text"
-                $fontColor={"primary"}
-                $fontWeight={"bold"}
-                $animation="smallScale"
-                $onClick={() =>{
-                  toggleActive();
-                  toggleExpand();}}
-              ></Button>
-              <Button
-                $content={<>Edit<span>&nbsp;&nbsp;</span><FiEdit size={20} /></>}
-                $buttonStyle="text"
-                $fontColor={"primary"}
-                $fontWeight={"bold"}
-                $animation="scale"
-                $onClick={() => toggleEditing()}
-              ></Button>
-            </>
-          }
           {!isEditing &&
-            <>
-              <Button
-                $content={<>Share<span>&nbsp;&nbsp;</span><FiShare2 size={20} /></>}
-                $buttonStyle="text"
-                $fontColor={"primary"}
-                $fontWeight={"bold"}
-                $animation="scale"
-              ></Button>
-              <Button
-                $content={<>Delete<span>&nbsp;&nbsp;</span><HiOutlineTrash size={20} /></>}
-                $buttonStyle="text"
-                $fontColor={"primary"}
-                $fontWeight={"bold"}
-                $animation="scale"
-              ></Button> 
-            </> 
-          }
+          <>
+            {category && 
+            <InfoContainer $active={isActive}>
+              <TbCategory size={20} />
+              <Info>&nbsp;&nbsp;{category.name}</Info>
+            </InfoContainer>}
+            {location &&
+            <InfoContainer $active={isActive}>
+              <HiOutlineLocationMarker size={20} />
+              <Info>&nbsp;&nbsp;{location}</Info>
+            </InfoContainer>}
+            {notification &&
+            <InfoContainer $active={isActive}>
+              <MdOutlineNotifications size={21}/>
+              <Info>&nbsp;&nbsp;{notification}</Info>
+            </InfoContainer>}
+            {repeat &&
+            <InfoContainer $active={isActive}>
+              <TbRepeat size={20}/>
+              <Info>&nbsp;&nbsp;
+                {repeat.join(', ')}
+              </Info>
+            </InfoContainer>}
+            {notes && 
+            <InfoContainer $active={isActive}>
+              <MdNotes size={20} />
+              <Info>&nbsp;&nbsp;{notes}</Info>
+            </InfoContainer>}
+          </>}
           {isEditing &&
-            <>
-              <Button
-                $content={<>Confirm<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
-                $buttonStyle="text"
-                $fontColor={"primary"}
-                $fontWeight={"bold"}
-                $animation="scale"
-                $onClick={() =>{
-                  editTask();
-                  toggleEditing();
-                  toggleExpand();}}
-              ></Button>
-              <Button
-                $content={<>Cancel<span>&nbsp;&nbsp;</span><FiXCircle size={20} /></>}
-                $buttonStyle="text"
-                $fontColor={"primary"}
-                $fontWeight={"bold"}
-                $animation="scale"
-                $onClick={() =>{
-                  toggleEditing();
-                  toggleExpand();}}
-              ></Button>
-            </>
-          }
-        </ButtonContainer>
-      </Main>
+          <>
+            <InfoContainer $active={isActive} $isEditing={isEditing}>
+              <TbCategory size={20} />
+              <>&nbsp;&nbsp;</>
+              <SelectorWithAdd $selectedOption={category} $options={categoryOptions} $onAdd={addNewCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
+            </InfoContainer>
+            <InfoContainer $active={isActive} $isEditing={isEditing}>
+              <HiOutlineLocationMarker size={20} />
+              <>&nbsp;&nbsp;</>
+              <InputField type="location" value={location} onChange={(e) => updateLocation(e.target.value)} placeholder='Location' />
+            </InfoContainer>
+            <InfoContainer $active={isActive} $isEditing={isEditing}>
+              <MdOutlineNotifications size={21}/>
+              <>&nbsp;&nbsp;</>
+              <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)} $selectedOptions={notification}></MultiSelector>
+            </InfoContainer>
+            <InfoContainer $active={isActive} $isEditing={isEditing}>
+              <TbRepeat size={20}/>
+              <>&nbsp;&nbsp;</>
+              <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)} $selectedOptions={repeat}></MultiSelector>
+            </InfoContainer>
+            <InfoContainer $active={isActive} $isEditing={isEditing}>
+              <MdNotes size={20} />
+              <>&nbsp;&nbsp;</>
+              <NotesInputField value={notes} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
+            </InfoContainer>
+          </>}
+
+          <ButtonContainer $active={isActive} $isEditing={isEditing}>
+            {isActive && !isEditing &&
+              <>
+                <Button 
+                  $content={<>Done<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
+                  $buttonStyle="text"
+                  $fontColor={"primary"}
+                  $fontWeight={"bold"}
+                  $animation="smallScale"
+                  $onClick={() =>{
+                    toggleActive();
+                    toggleExpand();}}
+                ></Button>
+                <Button
+                  $content={<>Edit<span>&nbsp;&nbsp;</span><FiEdit size={20} /></>}
+                  $buttonStyle="text"
+                  $fontColor={"primary"}
+                  $fontWeight={"bold"}
+                  $animation="scale"
+                  $onClick={() => toggleEditing()}
+                ></Button>
+              </>
+            }
+            {!isEditing &&
+              <>
+                <Button
+                  $content={<>Share<span>&nbsp;&nbsp;</span><FiShare2 size={20} /></>}
+                  $buttonStyle="text"
+                  $fontColor={"primary"}
+                  $fontWeight={"bold"}
+                  $animation="scale"
+                ></Button>
+                <Button
+                  $content={<>Delete<span>&nbsp;&nbsp;</span><HiOutlineTrash size={20} /></>}
+                  $buttonStyle="text"
+                  $fontColor={"primary"}
+                  $fontWeight={"bold"}
+                  $animation="scale"
+                ></Button> 
+              </> 
+            }
+            {isEditing &&
+              <>
+                <Button
+                  $content={<>Confirm<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
+                  $buttonStyle="text"
+                  $fontColor={"primary"}
+                  $fontWeight={"bold"}
+                  $animation="scale"
+                  $onClick={() =>{
+                    editTask();
+                    toggleEditing();
+                    toggleExpand();}}
+                ></Button>
+                <Button
+                  $content={<>Cancel<span>&nbsp;&nbsp;</span><FiXCircle size={20} /></>}
+                  $buttonStyle="text"
+                  $fontColor={"primary"}
+                  $fontWeight={"bold"}
+                  $animation="scale"
+                  $onClick={() =>{
+                    toggleEditing();
+                    toggleExpand();}}
+                ></Button>
+              </>
+            }
+          </ButtonContainer>
+        </Main>
+      }
     </TaskContainer>
   )
 }
