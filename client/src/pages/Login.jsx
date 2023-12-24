@@ -21,8 +21,7 @@ const Login = () => {
     clearError();
 
     try {
-      const {data} = await axios.post('http://localhost:3000/api/v1/auth/login', {email, password})
-      console.log(data);
+      await axios.post('http://localhost:5020/api/v1/user/login', {email, password});
     } catch (error) {
       const err = error.response.data.msg + ".";
       setError(err);
