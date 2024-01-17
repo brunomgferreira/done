@@ -7,7 +7,7 @@ const UserValidator = require("./userValidator");
 class UserService {
   async registerUser(firstName, lastName, email, password) {
     try {
-      UserValidator.validateRegistrationInput(
+      await UserValidator.validateRegistrationInput(
         firstName,
         lastName,
         email,
@@ -24,16 +24,9 @@ class UserService {
 
       return { message: "User registered successfully" };
     } catch (error) {
-      console.log(error);
       if (Object.keys(error).length > 0) throw new Error(JSON.stringify(error));
 
-      if (error.code === "ER_DUP_ENTRY")
-        throw new Error(
-          JSON.stringify({
-            email: "Email is already in use. Please use a different email.",
-          })
-        );
-      else throw new Error(JSON.stringify({ main: "Internal Server Error." }));
+      throw new Error(JSON.stringify({ main: "Internal Server Error." }));
     }
   }
 
@@ -57,7 +50,6 @@ class UserService {
         throw new Error("User not found");
       }
     } catch (error) {
-      console.error(error);
       throw new Error("Internal Server Error");
     }
   }

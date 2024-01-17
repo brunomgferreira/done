@@ -31,7 +31,8 @@ const Register = () => {
     clearErrors();
 
     try {
-      await axios.post('http://localhost:5020/api/v1/user/register', {firstName, lastName, email, password});
+      const response = await axios.post('http://localhost:3000/api/v1/user/register', {firstName, lastName, email, password});
+      console.log(response.data);
     } catch (error) {
       console.log(error.response.data);
       const errors = error.response.data.errors;

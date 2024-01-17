@@ -1,25 +1,45 @@
+const { addError } = require("../../utils/errorUtils");
+const isRequiredValidator = require("../../validators/isRequiredValidator");
+const emailValidator = require("../../validators/emailValidator");
+const isUnique = require("../../validators/isUniqueValidator");
+const passwordValidator = require("../../validators/passwordValidator");
+
 class UserValidator {
-  static validateRegistrationInput(firstName, lastName, email, password) {
+  static async validateRegistrationInput(firstName, lastName, email, password) {
     const errors = {};
 
-    if (!firstName) errors.firstName = "This field is required.";
+    const isValidEmail = async (email) => {
+      if (!email) return isRequiredValidator(email);
 
-    if (!lastName) errors.lastName = "This field is required.";
+      const emailValidationResult = emailValidator(email);
 
-    if (!email) errors.email = "This field is required.";
-    else if (!UserValidator.isValidEmail(email))
-      errors.email = "Invalid email address.";
+      if (emailValidationResult) {
+        return emailValidationResult;
+      } else {
+        const isUniqueResult = await isUnique(email, "user", "email");
+        return isUniqueResult;
+      }
+    };
 
-    if (!password) errors.password = "This field is required.";
-    else if (password.length < 8)
-      errors.password = "Password must be at least 8 characters long.";
+    const isValidPassword = (password) => {
+      if (!password) return isRequiredValidator(password);
+      else return passwordValidator(password);
+    };
+
+    const [firstNameError, lastNameError, emailError, passwordError] =
+      await Promise.all([
+        isRequiredValidator(firstName),
+        isRequiredValidator(lastName),
+        isValidEmail(email),
+        isValidPassword(password),
+      ]);
+
+    addError(errors, "firstName", firstNameError);
+    addError(errors, "lastName", lastNameError);
+    addError(errors, "email", emailError);
+    addError(errors, "password", passwordError);
 
     if (Object.keys(errors).length > 0) throw errors;
-  }
-
-  static isValidEmail(email) {
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    return emailRegex.test(email);
   }
 }
 
