@@ -1,35 +1,30 @@
-const userService = require("./userService");
+const { registerUser, authenticateUser } = require("./userService");
 
-class UserController {
-  async register(req, res) {
-    const { firstName, lastName, email, password } = req.body;
+const register = async (req, res) => {
+  const { firstName, lastName, email, password } = req.body;
 
-    try {
-      const result = await userService.registerUser(
-        firstName,
-        lastName,
-        email,
-        password
-      );
-      res.json(result);
-    } catch (error) {
-      res.status(500).json({
-        msg: "Registration failed",
-        errors: JSON.parse(error.message),
-      });
-    }
+  try {
+    const result = await registerUser(firstName, lastName, email, password);
+    res.json(result);
+  } catch (error) {
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({
+      msg: "Registration failed",
+      errors: JSON.parse(error.message),
+    });
   }
+};
 
-  async login(req, res) {
-    const { email, password } = req.body;
+const login = async (req, res) => {
+  const { email, password } = req.body;
 
-    try {
-      const user = await userService.authenticateUser(email, password);
-      res.json({ user });
-    } catch (error) {
-      res.status(401).json({ message: error.message });
-    }
+  try {
+    const user = await authenticateUser(email, password);
+    res.json({ user });
+  } catch (error) {
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({ message: error.message });
   }
-}
+};
 
-module.exports = new UserController();
+module.exports = { register, login };

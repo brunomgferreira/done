@@ -1,15 +1,21 @@
-const userService = require("../components/user/userService");
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+const { UnauthenticatedError } = require("../errors");
 
-async function authenticateUser(req, res, next) {
-  const { username, password } = req.body;
+const auth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
+    throw new UnauthenticatedError("Authentication invalid");
+  }
+  const token = authHeader.split(" ")[1];
 
   try {
-    const user = await userService.authenticateUser(username, password);
-    req.user = user;
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = { userId: payload.userId, name: payload.name };
     next();
   } catch (error) {
-    res.status(401).json({ message: error.message });
+    throw new UnauthenticatedError("Authentication invalid");
   }
-}
+};
 
-module.exports = authenticateUser;
+module.exports = auth;

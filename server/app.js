@@ -8,6 +8,7 @@ const cors = require("cors");
 const rateLimiter = require("express-rate-limit");
 
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const app = express();
 
 // connectDB
