@@ -1,11 +1,12 @@
 const { registerUser, authenticateUser } = require("./userService");
+const { StatusCodes } = require("http-status-codes");
 
 const register = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 
   try {
     const result = await registerUser(firstName, lastName, email, password);
-    res.json(result);
+    res.status(StatusCodes.OK).json(result);
   } catch (error) {
     const statusCode = error.statusCode || 500;
     res.status(statusCode).json({
@@ -19,8 +20,8 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await authenticateUser(email, password);
-    res.json({ user });
+    const result = await authenticateUser(email, password);
+    res.status(StatusCodes.OK).json(result);
   } catch (error) {
     const statusCode = error.statusCode || 500;
     res.status(statusCode).json({ message: error.message });

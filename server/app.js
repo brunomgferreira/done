@@ -16,6 +16,8 @@ const app = express();
 
 // routers
 const userRoutes = require("./components/user/userRoutes");
+const tasksRoutes = require("./components/tasks/tasksRoutes");
+const authenticateUser = require("./middleware/authenticateUser");
 // const taskRoutes = require('./components/task/taskRoutes');
 
 // error handler
@@ -35,8 +37,7 @@ app.use(cors());
 
 // routes
 app.use("/api/v1/user", userRoutes);
-// app.use(notFoundMiddleware);
-// app.use(errorHandlerMiddleware);
+app.use("/api/v1/tasks", authenticateUser, tasksRoutes);
 
 const port = process.env.PORT || 3000;
 

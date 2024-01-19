@@ -1,8 +1,9 @@
 const bcrypt = require("bcrypt");
-const User = require("./userModel");
 const mysql = require("mysql2/promise");
 const dbConfig = require("../../db/dbConfig");
 const UserValidator = require("./userValidator");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const {
   UnauthenticatedError,
   InternalServerError,
@@ -47,8 +48,17 @@ const authenticateUser = async (email, password) => {
     const user = rows[0];
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      console.log("Authentication successful");
-      return user;
+      const token = jwt.sign(
+        { userId: user.id, firstName: user.firstName, lastName: user.lastName },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_LIFETIME,
+        }
+      );
+      return {
+        user: { firstName: user.firstName, lastName: user.lastName },
+        token,
+      };
     } else throw new Error(true);
   } catch (error) {
     if (error)
