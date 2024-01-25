@@ -8,38 +8,77 @@ const {
 } = require("../../errors");
 
 const getAllTasks = async (req, res) => {
-  const user = req.user;
-  const connection = await mysql.createConnection(dbConfig);
-  const [tasks] = await connection.execute(
-    "SELECT * FROM task WHERE user = ?",
-    [user.userId]
-  );
+  try {
+    const user = req.user;
+    const connection = await mysql.createConnection(dbConfig);
+    const [tasks] = await connection.execute(
+      "SELECT task.id AS taskId, task.user, task.name AS taskName, task.startDate, task.startTime, task.dueDate, task.dueTime, task.location, task.notes, task.finished, task.finishDate, task.finishTime, category.id AS categoryId, category.name AS categoryName, category.color " +
+        "FROM task " +
+        "INNER JOIN category ON task.category = category.id " +
+        "WHERE task.user = ?",
+      [user.userId]
+    );
+    await Promise.all(
+      tasks.map(async (task) => {
+        const [taskNotifications] = await connection.execute(
+          "SELECT taskNotification.notificationID as id, notification.name " +
+            "FROM taskNotification " +
+            "INNER JOIN notification ON taskNotification.notificationID = notification.id " +
+            "WHERE taskNotification.taskID = ?",
+          [task.taskId]
+        );
 
-  res.status(StatusCodes.OK).json({ tasks, count: tasks.length });
+        const [taskRepeatIntervals] = await connection.execute(
+          "SELECT taskRepeatInterval.repeatIntervalID as id, repeatInterval.name " +
+            "FROM taskRepeatInterval " +
+            "INNER JOIN repeatInterval ON taskRepeatInterval.repeatIntervalID = repeatInterval.id " +
+            "WHERE taskRepeatInterval.taskID = ?",
+          [task.taskId]
+        );
+        task.notifications = taskNotifications;
+        task.repeatIntervals = taskRepeatIntervals;
+      })
+    );
+
+    res.status(StatusCodes.OK).json({ tasks, count: tasks.length });
+  } catch (error) {
+    throw new InternalServerError(error.message);
+  }
 };
 
 const getTask = async (req, res) => {
-  const user = req.user;
-  const taskID = req.params.id;
-  const connection = await mysql.createConnection(dbConfig);
-  const [rows] = await connection.execute(
-    "SELECT * FROM task WHERE id = ? AND user = ?",
-    [taskID, user.userId]
-  );
+  try {
+    const user = req.user;
+    const taskID = req.params.id;
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute(
+      "SELECT * FROM task WHERE id = ? AND user = ?",
+      [taskID, user.userId]
+    );
 
-  const task = rows[0];
+    const task = rows[0];
 
-  if (!task) {
-    throw new NotFoundError(`No task with id ${taskID}`);
+    if (!task) {
+      throw new NotFoundError(`No task with id ${taskID}`);
+    }
+    res.status(StatusCodes.OK).json({ task });
+  } catch (error) {
+    if (
+      error.statusCode == StatusCodes.NOT_FOUND ||
+      error.statusCode == StatusCodes.BAD_REQUEST
+    ) {
+      throw error;
+    } else {
+      throw new InternalServerError(error.message);
+    }
   }
-  res.status(StatusCodes.OK).json({ task });
 };
 
 const createTask = async (req, res) => {
   try {
     const {
       body: {
-        taskName,
+        name: taskName,
         category,
         location,
         notification,
@@ -53,7 +92,6 @@ const createTask = async (req, res) => {
     } = req;
 
     if (
-      !taskName ||
       !category ||
       !notification ||
       !repeat ||
@@ -67,33 +105,46 @@ const createTask = async (req, res) => {
     }
 
     const connection = await mysql.createConnection(dbConfig);
+    // check if user with userId exists in db
+    const [userResult] = await connection.execute(
+      "SELECT * FROM user WHERE id = ?",
+      [userId]
+    );
+
+    if (userResult.length <= 0)
+      throw new NotFoundError(`No user with id ${userId}`);
+
+    const taskNameValue = taskName === "" ? null : taskName;
+    const locationValue = location === "" ? null : location;
+    const notesValue = notes === "" ? null : notes;
+
     const [result] = await connection.execute(
-      "INSERT INTO task (user, name, category, startDate, startTime, finishTime, location, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO task (user, name, category, startDate, startTime, dueTime, location, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         userId,
-        taskName,
-        category,
+        taskNameValue,
+        category.id,
         date,
         startingTime,
         endingTime,
-        location,
-        notes,
+        locationValue,
+        notesValue,
       ]
     );
 
     const taskId = result.insertId;
 
-    repeat.forEach(async (repeatIntervalId) => {
+    repeat.forEach(async (repeatInterval) => {
       await connection.execute(
         "INSERT INTO taskRepeatInterval (taskID, repeatIntervalID) VALUES (?, ?)",
-        [taskId, repeatIntervalId]
+        [taskId, repeatInterval.id]
       );
     });
 
-    notification.forEach(async (notificationId) => {
+    notification.forEach(async (notification) => {
       await connection.execute(
         "INSERT INTO taskNotification (taskID, notificationID) VALUES (?, ?)",
-        [taskId, notificationId]
+        [taskId, notification.id]
       );
     });
 
@@ -144,10 +195,10 @@ const updateTask = async (req, res) => {
         "DELETE FROM taskRepeatInterval WHERE taskID = ?",
         [taskId]
       );
-      repeat.forEach(async (repeatIntervalId) => {
+      repeat.forEach(async (option) => {
         await connection.execute(
           "INSERT INTO taskRepeatInterval (taskID, repeatIntervalID) VALUES (?, ?)",
-          [taskId, repeatIntervalId]
+          [taskId, option.id]
         );
       });
 
@@ -156,10 +207,10 @@ const updateTask = async (req, res) => {
         "DELETE FROM taskNotification WHERE taskID = ?",
         [taskId]
       );
-      notification.forEach(async (notificationId) => {
+      notification.forEach(async (option) => {
         await connection.execute(
           "INSERT INTO taskNotification (taskID, notificationID) VALUES (?, ?)",
-          [taskId, notificationId]
+          [taskId, option.id]
         );
       });
 
@@ -246,7 +297,7 @@ const concludeTask = async (req, res) => {
     const formattedTime = `${hours}:${minutes}:${seconds}`;
 
     await connection.execute(
-      "UPDATE task SET finished = ?, actualFinishDate = ?, actualFinishTime = ? WHERE id = ? AND user = ?",
+      "UPDATE task SET finished = ?, finishDate = ?, finishTime = ? WHERE id = ? AND user = ?",
       [true, formattedDate, formattedTime, taskId, userId]
     );
   } catch (error) {

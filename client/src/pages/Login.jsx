@@ -6,6 +6,7 @@ import { BsFacebook } from 'react-icons/bs';
 import axios from 'axios';
 import InputField from '../components/elements/InputField';
 import { Link } from 'react-router-dom'
+import { StatusCodes } from 'http-status-codes'
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,13 +17,100 @@ const Login = () => {
     setError('');
   }
 
+  const fetchNotificationOptions = async (jwtToken) => {
+    try {
+      const { data } = await axios.get('http://localhost:3000/api/v1/tasksNotifications/', {
+          headers: { Authorization: `Bearer ${jwtToken}` },
+      });
+      localStorage.setItem("notificationOptions", JSON.stringify(data.notifications));
+    } catch (error) {
+      if (
+        error.statusCode == StatusCodes.NOT_FOUND ||
+        error.statusCode == StatusCodes.BAD_REQUEST
+      ) {
+        throw error;
+      } else {
+        const customError = new Error();
+        customError.response = {
+          data: {
+            message: "Internal Server Error"
+          }
+        };
+        customError.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+        throw customError;
+      }
+    } 
+  };
+
+  const fetchRepeatOptions = async (jwtToken) => {
+    try {
+      const { data } = await axios.get('http://localhost:3000/api/v1/tasksRepeat/', {
+          headers: { Authorization: `Bearer ${jwtToken}` },
+      });
+      localStorage.setItem("repeatOptions", JSON.stringify(data.repeatIntervals));
+    } catch (error) {
+      if (
+        error.statusCode == StatusCodes.NOT_FOUND ||
+        error.statusCode == StatusCodes.BAD_REQUEST
+      ) {
+        throw error;
+      } else {
+        const customError = new Error();
+        customError.response = {
+          data: {
+            message: "Internal Server Error"
+          }
+        };
+        customError.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+        throw customError;
+      }
+    } 
+  };
+
+  const fetchCategoryOptions = async (jwtToken) => {
+    try {
+      const { data } = await axios.get('http://localhost:3000/api/v1/tasksCategory/', {
+          headers: { Authorization: `Bearer ${jwtToken}` },
+      });
+      localStorage.setItem("categoryOptions", JSON.stringify(data.categories));
+    } catch (error) {
+      if (
+        error.statusCode == StatusCodes.NOT_FOUND ||
+        error.statusCode == StatusCodes.BAD_REQUEST
+      ) {
+        throw error;
+      } else {
+        const customError = new Error();
+        customError.response = {
+          data: {
+            message: "Internal Server Error"
+          }
+        };
+        customError.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+        throw customError;
+      }
+    } 
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault(); 
     clearError();
 
     try {
-      await axios.post('http://localhost:3000/api/v1/user/login', {email, password});
+      const result = await axios.post('http://localhost:3000/api/v1/user/login', {email, password});
+      const jwtToken = result.data.token;
+      const user = result.data.user;
+      localStorage.setItem('token', jwtToken);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      await fetchNotificationOptions(jwtToken);
+      await fetchRepeatOptions(jwtToken);
+      await fetchCategoryOptions(jwtToken);
+
+      window.location = '/tasks';
+
     } catch (error) {
+      localStorage.clear();
       const err = error.response.data.message + ".";
       setError(err);
     }

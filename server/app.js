@@ -1,5 +1,6 @@
 require("dotenv").config();
 require("express-async-errors");
+const { StatusCodes } = require("http-status-codes");
 
 // extra security packages
 const helmet = require("helmet");
@@ -17,6 +18,9 @@ const app = express();
 // routers
 const userRoutes = require("./components/user/userRoutes");
 const tasksRoutes = require("./components/tasks/tasksRoutes");
+const notificationsRoutes = require("./components/tasks/notifications/notificationsRoutes");
+const repeatIntervalsRoutes = require("./components/tasks/repeatIntervals/repeatIntervalsRoutes");
+const categoriesRoutes = require("./components/tasks/categories/categoriesRoutes");
 const authenticateUser = require("./middleware/authenticateUser");
 // const taskRoutes = require('./components/task/taskRoutes');
 
@@ -38,6 +42,12 @@ app.use(cors());
 // routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/tasks", authenticateUser, tasksRoutes);
+app.use("/api/v1/tasksNotifications", authenticateUser, notificationsRoutes);
+app.use("/api/v1/tasksRepeat", authenticateUser, repeatIntervalsRoutes);
+app.use("/api/v1/tasksCategory", authenticateUser, categoriesRoutes);
+app.get("/api/v1/auth", authenticateUser, (req, res) => {
+  res.status(StatusCodes.OK).json({ message: "Authentication successful" });
+});
 
 const port = process.env.PORT || 3000;
 

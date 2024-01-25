@@ -8,21 +8,19 @@ const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions, $sele
     const multiSelectorRef = useRef(null);
 
     const toggleOption = (option) => {
-
-        if(option === $defaultOption) {
+        if(option.id === $defaultOption.id) {
             setSelectedOptions([$defaultOption]);
         }
-        else if (selectedOptions.includes(option)) {
-            setSelectedOptions((prevState) => prevState.filter((item) => item !== option));
+        else if (selectedOptions.some((selectedOption) => selectedOption.id == option.id)) {
+            setSelectedOptions((prevState) => prevState.filter((item) => item.id !== option.id));
         } else {
-            if($selectedOptions.includes($defaultOption)) {
+            if($selectedOptions.some((selectedOption) => selectedOption.id == $defaultOption.id)) {
                 setSelectedOptions([]);
             }
             setSelectedOptions((prevState) => [...prevState, option]);
         }
         $updateSelectedOptions(selectedOptions);
     };
-
 
     useEffect(() => {
         $updateSelectedOptions(selectedOptions);
@@ -48,12 +46,12 @@ const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions, $sele
 
     return (
         <MultiSelectorWrapper ref={multiSelectorRef}>
-            <InputField type="text" value={selectedOptions.join(', ')} readOnly onFocus={() => setIsOpen(true)} $defaultOption={$defaultOption}/>
+            <InputField type="text" value={selectedOptions.map(option => option.name).join(', ')} readOnly onFocus={() => setIsOpen(true)} $defaultOption={$defaultOption}/>
             {isOpen && 
                 <OptionsContainer>
-                    <Option onClick={() => {toggleOption($defaultOption); setIsOpen(false);}} selected={selectedOptions.includes($defaultOption)}>{$defaultOption}</Option>
-                    {$options.map((option) => (
-                        <Option key={option} onClick={() => toggleOption(option)} selected={selectedOptions.includes(option)}>{option}</Option>
+                    <Option onClick={() => {toggleOption($defaultOption); setIsOpen(false);}} selected={selectedOptions.some((selectedOption) => selectedOption.id == $defaultOption.id)}>{$defaultOption.name}</Option>
+                    {$options.slice(1).map((option) => (
+                        <Option key={option.id} onClick={() => toggleOption(option)} selected={selectedOptions.some((selectedOption) => selectedOption.id == option.id)}>{option.name}</Option>
                     ))}
                 </OptionsContainer>
             }
@@ -63,7 +61,7 @@ const MultiSelector = ({ $options, $defaultOption, $updateSelectedOptions, $sele
 
 MultiSelector.propTypes = {
     $options: PropTypes.array, 
-    $defaultOption: PropTypes.string,
+    $defaultOption: PropTypes.object,
     $updateSelectedOptions: PropTypes.func,
     $selectedOptions: PropTypes.array
 }
@@ -79,7 +77,7 @@ const InputField = styled.input`
     cursor: pointer;
 
     ${({value, $defaultOption}) => (
-        value == $defaultOption && css`
+        value == $defaultOption.name && css`
             color: #616262;
         `
     )}

@@ -11,9 +11,33 @@ import { TbCategory, TbRepeat } from 'react-icons/tb'
 import { HiOutlineLocationMarker } from 'react-icons/hi'
 import SelectorWithAdd from '../addTaskModal/SelectorWithAdd'
 import MultiSelector from '../addTaskModal/MultiSelector'
+import axios from 'axios';
 
-const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes, $isEditing, $updateIsEditing}) => {
-  const [isActive, setIsActive] = useState(true);
+const Task = (
+  { $fetchAllTasks, 
+    $taskId,  
+    $isExpanded,  
+    $updateExpandedTask, 
+    $taskName, 
+    $date, 
+    $startingTime, 
+    $endingTime, 
+    $category, 
+    $location, 
+    $notification, 
+    $repeat, 
+    $notes, 
+    $isEditing, 
+    $updateIsEditing, 
+    $isActive, 
+    $deleteTask, 
+    $createCategory,
+    $notificationOptions,
+    $notificationDefaultOption,
+    $repeatOptions,
+    $repeatDefaultOption,
+    $categoryOptions }) => {
+  const [isActive, setIsActive] = useState($isActive);
   const [isEditing, setIsEditing] = useState($isEditing);
 
   const toggleExpand = () => {
@@ -29,8 +53,17 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
     $updateExpandedTask(null);
   }
 
-  const toggleActive = () => {
-    setIsActive(!isActive);
+  const toggleActive = async () => {
+    try {
+      const jwtToken = localStorage.getItem('token');
+      if(!jwtToken) throw new Error;
+      await axios.patch(`http://localhost:3000/api/v1/tasks/done/${$taskId}`,
+      {}, { headers: {Authorization: `Bearer ${jwtToken}`},});
+      setIsActive(false);
+      $fetchAllTasks();
+    } catch (error) {
+      console.error("There was an error:", error.message);
+    }
   };
 
   const toggleEditing = () => {
@@ -42,7 +75,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
   const [date, setDate] = useState($date);
   const [startingTime, setStartingTime] = useState($startingTime);
   const [endingTime, setEndingTime] = useState($endingTime);
-  const [category, setCategory] = useState($category);
+  const [category, setCategory] = useState($categoryOptions.includes($category) ? $category : $categoryOptions[0]);
   const [location, setLocation] = useState($location);
   const [notification, setNotification] = useState($notification);
   const [repeat, setRepeat] = useState($repeat);
@@ -84,29 +117,17 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
     setNotes(newValue);
   }
 
-  const editTask = () => {
-    const task = {
-        name: name,
-        category: category,
-        location: location,
-        notification: notification,
-        repeat: repeat,
-        notes: notes,
-        date: date,
-        startingTime: startingTime,
-        endingTime: endingTime
+  const editTask = async () => {
+    try {
+      const jwtToken = localStorage.getItem('token');
+      if(!jwtToken) throw new Error;
+      await axios.patch(`http://localhost:3000/api/v1/tasks/${$taskId}`, 
+      { category: category.id, location, notification, repeat, notes },
+      { headers: {Authorization: `Bearer ${jwtToken}`},});
+      $fetchAllTasks();
+    } catch (error) {
+      console.error("There was an error:", error.message);
     }
-    console.log(task);
-  }
-
-  const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
-  const notificationDefaultOption = 'No Notifications';
-  const repeatOptions = ['Every Day', 'Every Week', 'Every Month', 'Every Year'];
-  const repeatDefaultOption = 'No Repeat';
-  const categoryOptions = [{name: 'My tasks', color: '#000000'}, {name: 'Every Day', color: '#000000'}, {name: 'Every Week', color: '#FFFFFF'}, {name: 'Every Month', color: '#AABBFF'}];
-
-  const addNewCategory = (name, color) => {
-    console.log({name: name, color: color});
   }
 
   useEffect(() => {
@@ -120,7 +141,6 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
     updateRepeat($repeat);
     setNotes($notes);
     setIsEditing($isEditing);
-
   }, [$taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes, isEditing, $isExpanded]);
 
   return (
@@ -172,13 +192,13 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
             {notification &&
             <InfoContainer $active={isActive}>
               <MdOutlineNotifications size={21}/>
-              <Info>&nbsp;&nbsp;{notification}</Info>
+              <Info>&nbsp;&nbsp;{notification.map((option) => option.name).join(', ')}</Info>
             </InfoContainer>}
             {repeat &&
             <InfoContainer $active={isActive}>
               <TbRepeat size={20}/>
               <Info>&nbsp;&nbsp;
-                {repeat.join(', ')}
+                {repeat.map((option) => option.name).join(', ')}
               </Info>
             </InfoContainer>}
             {notes && 
@@ -192,27 +212,27 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
             <InfoContainer $active={isActive} $isEditing={isEditing}>
               <TbCategory size={20} />
               <>&nbsp;&nbsp;</>
-              <SelectorWithAdd $selectedOption={category} $options={categoryOptions} $onAdd={addNewCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
+              <SelectorWithAdd $selectedOption={category} $options={$categoryOptions} $onAdd={$createCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
             </InfoContainer>
             <InfoContainer $active={isActive} $isEditing={isEditing}>
               <HiOutlineLocationMarker size={20} />
               <>&nbsp;&nbsp;</>
-              <InputField type="location" value={location} onChange={(e) => updateLocation(e.target.value)} placeholder='Location' />
+              <InputField type="location" value={location ? location : ""} onChange={(e) => updateLocation(e.target.value)} placeholder='Location' />
             </InfoContainer>
             <InfoContainer $active={isActive} $isEditing={isEditing}>
               <MdOutlineNotifications size={21}/>
               <>&nbsp;&nbsp;</>
-              <MultiSelector $defaultOption={notificationDefaultOption} $options={notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)} $selectedOptions={notification}></MultiSelector>
+              <MultiSelector $defaultOption={$notificationDefaultOption} $options={$notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)} $selectedOptions={notification}></MultiSelector>
             </InfoContainer>
             <InfoContainer $active={isActive} $isEditing={isEditing}>
               <TbRepeat size={20}/>
               <>&nbsp;&nbsp;</>
-              <MultiSelector $defaultOption={repeatDefaultOption} $options={repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)} $selectedOptions={repeat}></MultiSelector>
+              <MultiSelector $defaultOption={$repeatDefaultOption} $options={$repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)} $selectedOptions={repeat}></MultiSelector>
             </InfoContainer>
             <InfoContainer $active={isActive} $isEditing={isEditing}>
               <MdNotes size={20} />
               <>&nbsp;&nbsp;</>
-              <NotesInputField value={notes} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
+              <NotesInputField value={notes ? notes : ""} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
             </InfoContainer>
           </>}
 
@@ -254,6 +274,7 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
                   $fontColor={"primary"}
                   $fontWeight={"bold"}
                   $animation="scale"
+                  $onClick={() => $deleteTask($taskId)}
                 ></Button> 
               </> 
             }
@@ -290,7 +311,8 @@ const Task = ({ $taskId,  $isExpanded,  $updateExpandedTask, $taskName, $date, $
 }
 
 Task.propTypes = {
-  $taskId: PropTypes.string,
+  $fetchAllTasks: PropTypes.func,
+  $taskId: PropTypes.number,
   $isExpanded:PropTypes.bool,  
   $updateExpandedTask: PropTypes.func,
   $taskName: PropTypes.string,
@@ -302,6 +324,16 @@ Task.propTypes = {
   $notification: PropTypes.array,
   $repeat: PropTypes.array,
   $notes: PropTypes.string,
+  $isEditing: PropTypes.bool,
+  $updateIsEditing: PropTypes.func,
+  $deleteTask: PropTypes.func,
+  $isActive: PropTypes.bool,
+  $createCategory: PropTypes.func,
+  $notificationOptions: PropTypes.array,
+  $notificationDefaultOption: PropTypes.object,
+  $repeatOptions: PropTypes.array,
+  $repeatDefaultOption: PropTypes.object,
+  $categoryOptions: PropTypes.array,
 }
 
 const TaskContainer = styled.div`
