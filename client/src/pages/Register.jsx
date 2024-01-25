@@ -16,14 +16,14 @@ const Register = () => {
   const [lastNameErr, setLastNameErr] = useState('');
   const [emailErr, setEmailErr] = useState('');
   const [passwordErr, setPasswordErr] = useState('');
-  const [anotherErr, setAnotherErr] = useState('');
+  const [mainErr, setMainErr] = useState('');
 
   const clearErrors = () => {
     setFirstNameErr('');
     setLastNameErr('');
     setEmailErr('');
     setPasswordErr('');
-    setAnotherErr('');
+    setMainErr('');
   }
 
   const handleSubmit = async (e) => {
@@ -31,26 +31,30 @@ const Register = () => {
     clearErrors();
 
     try {
-      const {data} = await axios.post('http://localhost:3000/api/v1/auth/register', {firstName, lastName, email, password})
-      // console.log(data);
+      const response = await axios.post('http://localhost:3000/api/v1/user/register', {firstName, lastName, email, password});
+      console.log(response.data);
     } catch (error) {
-      const errors = error.response.data.msg;
+      console.log(error.response.data);
+      const errors = error.response.data.errors;
       Object.keys(errors).forEach(fieldName => {
         switch (fieldName) {
           case "firstName":
-            setFirstNameErr(errors[fieldName].message + "."); 
+            setFirstNameErr(errors[fieldName]); 
             break;
           case "lastName":
-            setLastNameErr(errors[fieldName].message + "."); 
+            setLastNameErr(errors[fieldName]); 
             break;
           case "email":
-            setEmailErr(errors[fieldName].message + "."); 
+            setEmailErr(errors[fieldName]); 
             break;
           case "password":
-            setPasswordErr(errors[fieldName].message + "."); 
+            setPasswordErr(errors[fieldName]); 
+            break;
+          case "main":
+            setMainErr(errors[fieldName]);
             break;
           default:
-            setAnotherErr("There was an error, try again later.")
+            setMainErr("There was an error, try again later.");
             break;
         }
       });
@@ -89,7 +93,7 @@ const Register = () => {
                 $fontColor="white"
                 $animation="scale"
               ></Button>
-              <ErrorSpan>{anotherErr}</ErrorSpan> 
+              <ErrorSpan>{mainErr}</ErrorSpan> 
             </SubmitButtonContainer>
             <div>
               <span>Or sign up with</span>

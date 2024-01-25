@@ -18,7 +18,6 @@ const SelectorWithAdd = ({ $options, $onAdd, $selectedOption, $updateSelectedOpt
         setNewOptionColor(newValue);
     };
 
-
     const SelectorRef = useRef(null);
 
     const toggleOption = (option) => {
@@ -26,7 +25,7 @@ const SelectorWithAdd = ({ $options, $onAdd, $selectedOption, $updateSelectedOpt
         if($updateSelectedOption) {
             $updateSelectedOption(option);
         }
-        setIsOpen(false);   
+        setIsOpen(false);
     };
 
     useEffect(() => {
@@ -45,7 +44,13 @@ const SelectorWithAdd = ({ $options, $onAdd, $selectedOption, $updateSelectedOpt
             document.removeEventListener('mousedown', handleClickOutside);
             SelectorRef.current && SelectorRef.current.removeEventListener('mousedown', handleClickInside);
         }
-    }, [isOpen])
+    }, [isOpen]);
+
+    useEffect(() => {
+        setSelectedOption($selectedOption ? $selectedOption : "");
+        setNewOptionName("");
+        setNewOptionColor;
+    }, []);
 
     return (
         <SelectorWrapper ref={SelectorRef}>
@@ -54,7 +59,7 @@ const SelectorWithAdd = ({ $options, $onAdd, $selectedOption, $updateSelectedOpt
                 <Container>
                     <OptionsContainer>
                         {$options.map((option) => (
-                            <Option key={option.name} onClick={() => toggleOption(option)} selected={selectedOption.name == option.name}>{option.name}<Color $color={option.color}></Color></Option>
+                            <Option key={option.id} onClick={() => toggleOption(option)} selected={selectedOption.name == option.name}>{option.name}<Color $color={option.color}></Color></Option>
                         ))}
                     </OptionsContainer>
                     <AddOptionContainer>
@@ -67,7 +72,11 @@ const SelectorWithAdd = ({ $options, $onAdd, $selectedOption, $updateSelectedOpt
                             $fontColor="black"
                             $fontWeight="bold"
                             $animation="smallScale"
-                            $onClick={() => $onAdd(newOptionName, newOptionColor)}
+                            $onClick={() => {
+                                $onAdd(newOptionName, newOptionColor);
+                                setNewOptionName("");
+                                setNewOptionColor("#000000");
+                            }}
                         ></Button>
                     </AddOptionContainer>
                 </Container>

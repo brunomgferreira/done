@@ -1,6 +1,6 @@
-const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { UnauthenticatedError } = require("../errors");
+require("dotenv").config();
 
 const auth = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -11,8 +11,11 @@ const auth = (req, res, next) => {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    // attach the user to the job routes
-    req.user = { userId: payload.userId, name: payload.name };
+    req.user = {
+      userId: payload.userId,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+    };
     next();
   } catch (error) {
     throw new UnauthenticatedError("Authentication invalid");

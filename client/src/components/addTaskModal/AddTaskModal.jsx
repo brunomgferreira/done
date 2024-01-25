@@ -11,16 +11,19 @@ import { IoMdCheckmark, IoMdClose } from 'react-icons/io';
 import TimeIntervalSelect from './TimeIntervalSelect';
 import MultiSelector from './MultiSelector';
 import SelectorWithAdd from './SelectorWithAdd';
+import axios from 'axios';
 
 const AddTaskContext = createContext();
 
-const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
-    const notificationOptions = ['On time','10 Minutes Before','1 Hour Before','1 Day Before'];
-    const notificationDefaultOption = 'No Notifications';
-    const repeatOptions = ['Every Day', 'Every Week', 'Every Month', 'Every Year'];
-    const repeatDefaultOption = 'No Repeat';
-    const categoryOptions = [{name: 'My tasks', color: '#000000'}, {name: 'Every Day', color: '#000000'}, {name: 'Every Week', color: '#FFFFFF'}, {name: 'Every Month', color: '#AABBFF'}];
-    const categoryDefaultOption = {name: 'My tasks', color: '#000000'};
+const AddTaskModal = ({ $defaultName, $updateIsOpen, $fetchAllTasks, $createCategory }) => {
+    const [notificationOptions, setNotificationOptions] = useState(JSON.parse(localStorage.getItem("notificationOptions")));
+    const [notificationDefaultOption, setNotificationDefaultOption] = useState(notificationOptions[0]);
+    
+    const [repeatOptions, setRepeatOptions] = useState(JSON.parse(localStorage.getItem("repeatOptions")));
+    const [repeatDefaultOption, setRepeatDefaultOption] = useState(repeatOptions[0]);
+    
+    const [categoryOptions, setCategoryOptions] = useState(JSON.parse(localStorage.getItem("categoryOptions")));
+    const [categoryDefaultOption, setCategoryDefaultOption] = useState(categoryOptions[0]);
 
     const [name, setName] = useState($defaultName);
     const [category, setCategory] = useState(categoryDefaultOption);
@@ -29,8 +32,24 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
     const [repeat, setRepeat] = useState([repeatDefaultOption]);
     const [notes, setNotes] = useState("");
     const [date , setDate] = useState(new Date().toISOString().split("T")[0]);
-    const [startingTime, setStartingTime] = useState(`${new Date().getHours()}:${Math.ceil(new Date().getMinutes() / 10) * 10}`);
-    const [endingTime, setEndingTime] = useState(`${new Date().getHours()}:${Math.ceil(new Date().getMinutes() / 10) * 10}`);
+    const [startingTime, setStartingTime] = useState(() => {
+        let hours = new Date().getHours();
+        let minutes = Math.ceil(new Date().getMinutes() / 10) * 10;
+        if(minutes >= 60) {
+            hours++;
+            minutes = minutes-60;
+        }
+        return `${hours}:${minutes}`
+    });
+    const [endingTime, setEndingTime] = useState(() => {
+        let hours = new Date().getHours();
+        let minutes = Math.ceil(new Date().getMinutes() / 10) * 10;
+        if(minutes >= 60) {
+            hours++;
+            minutes = minutes-60;
+        }
+        return `${hours}:${minutes}`
+    });
     const modalContainerRef = useRef(null);
 
     const updateName = (newValue) => {
@@ -69,24 +88,18 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
         setEndingTime(newValue);
     };
 
-    const addNewCategory = (name, color) => {
-        console.log({name: name, color: color});
-    }
-
-    const createTask = () => {
-        const task = {
-            name: name,
-            category: category,
-            location: location,
-            notification: notification,
-            repeat: repeat,
-            notes: notes,
-            date: date,
-            startingTime: startingTime,
-            endingTime: endingTime
+    const createTask = async () => {
+        try {
+            const jwtToken = localStorage.getItem('token');
+            await axios.post('http://localhost:3000/api/v1/tasks/', 
+            { name, category, location, notification, repeat, notes, date, startingTime, endingTime },
+            { headers: {Authorization: `Bearer ${jwtToken}`}});
+            $updateIsOpen(false);
+            $fetchAllTasks();
+        } catch (error) {
+            console.log(error);
         }
-        console.log(task);
-    }
+    };
 
     useEffect(() => {
         const handleClickOutside = ({target}) => {
@@ -98,11 +111,20 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         }
-    }, [$updateIsOpen])
+    }, [$updateIsOpen]);
 
     const updateIsOpen = (newValue) => {
         $updateIsOpen(newValue);
-    }
+    };
+
+    const updateOptions = async (name, color) => {
+        const categoryID = await $createCategory(name, color);
+        setCategoryOptions((prevCategoryOptions) => {
+            const updatedCategoryOptions = [...prevCategoryOptions, {id : categoryID, name, color }];
+            setCategoryDefaultOption(updatedCategoryOptions[0]);
+            return updatedCategoryOptions;
+        });
+    };
 
     return (
         <AddTaskContext.Provider
@@ -129,7 +151,7 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
                         <TimeIntervalSelect $updateStartingTime={(newValue) => updateStartingTime(newValue)} $updateEndingTime={(newValue) => updateEndingTime(newValue)} />
                         <InfoContainer>
                             <TbCategory size={20} />
-                            <SelectorWithAdd $selectedOption={categoryDefaultOption} $options={categoryOptions} $onAdd={addNewCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
+                            <SelectorWithAdd $selectedOption={categoryDefaultOption} $options={categoryOptions} $onAdd={updateOptions} $updateSelectedOption={updateCategory}/>
                         </InfoContainer>
                         <InfoContainer>
                             <HiOutlineLocationMarker size={20} />
@@ -179,7 +201,10 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen }) => {
 
 AddTaskModal.propTypes = {
     $defaultName: PropTypes.string,
-    $updateIsOpen: PropTypes.func
+    $updateIsOpen: PropTypes.func,
+    $isOpen: PropTypes.bool,
+    $fetchAllTasks: PropTypes.func,
+    $createCategory: PropTypes.func,
 }
 
 const ModalWrapper = styled.div`
