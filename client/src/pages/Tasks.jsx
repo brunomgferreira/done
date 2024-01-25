@@ -19,7 +19,7 @@ const Tasks = () => {
     const [openFilters, setOpenFilters] = useState(false);
     const [openSettings, setOpenSettings] = useState(false);
     const [newTaskName, setNewTaskName] = useState("");
-    const [selectedWeekDay, setSelectedWeekDay] = useState("TODAY");
+    const [selectedWeekDay, setSelectedWeekDay] = useState(0);
     const [isEditingTask, setIsEditingTask] = useState(false);
     const [tasks, setTasks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +30,8 @@ const Tasks = () => {
     const [repeatOptions, setRepeatOptions] = useState(JSON.parse(localStorage.getItem("repeatOptions")));
     const [repeatDefaultOption, setRepeatDefaultOption] = useState(repeatOptions[0]);
     const [categoryOptions, setCategoryOptions] = useState(JSON.parse(localStorage.getItem("categoryOptions")));
+
+    const [todayDate, setTodayDate] = useState(new Date());
 
     const toggleOpenFilters = () => {
         setOpenSettings(false);
@@ -67,7 +69,7 @@ const Tasks = () => {
             setIsLoading(true);
             const jwtToken = localStorage.getItem('token');
             if(!jwtToken) throw new Error;
-            const result = await axios.get('http://localhost:3000/api/v1/tasks/', 
+            const result = await axios.get(`http://localhost:3000/api/v1/tasks/day/${getDate(selectedWeekDay)}`, 
             { headers: {Authorization: `Bearer ${jwtToken}`}});
             if (result.status === StatusCodes.OK) {
                 setTasks(sortTasks(result.data.tasks));
@@ -161,6 +163,10 @@ const Tasks = () => {
         fetchCategoryOptions();
     }, [])
 
+    useEffect(() => {
+        fetchAllTasks();
+    }, [selectedWeekDay])
+
     const formatDate = (date) => {
         const inputDate = new Date(date);
 
@@ -203,7 +209,13 @@ const Tasks = () => {
         } catch (error) {
           console.error("There was an error:", error.message);
         }
-      }
+    }
+
+    const getDate = (day) => {
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() + day);
+        return currentDate;
+    }
 
     return (
     <>
@@ -211,67 +223,28 @@ const Tasks = () => {
         <Header></Header>
         <SecondHeaderWrapper>
             <SecondHeader>
-                <DateContainer>16 OCT.
-                </DateContainer>
+                <DateContainer>{todayDate.toLocaleString('en', { day: 'numeric', month: 'short' }).toUpperCase().split(" ").reverse().join(" ") + "."}</DateContainer>
                 <Navbar>
                     <Button 
                         $content="TODAY"
                         $buttonStyle="icon"
-                        $fontColor={"TODAY"==selectedWeekDay ? "primary" : "black"}
-                        $fontWeight={"TODAY"==selectedWeekDay ? "bold" : "normal"}
-                        $onClick={() => updateSelectedWeekDay("TODAY")}
+                        $fontColor={0==selectedWeekDay ? "primary" : "black"}
+                        $fontWeight={0==selectedWeekDay ? "bold" : "normal"}
+                        $onClick={() => updateSelectedWeekDay(0)}
                         $animation="scale"
                     ></Button>
-                    <Button 
-                        $content="MON"
-                        $buttonStyle="icon"
-                        $fontColor={"MON"==selectedWeekDay ? "primary" : "black"}
-                        $fontWeight={"MON"==selectedWeekDay ? "bold" : "normal"}
-                        $onClick={() => updateSelectedWeekDay("MON")}
-                        $animation="scale"
-                    ></Button>
-                    <Button 
-                        $content="TUE"
-                        $buttonStyle="icon"
-                        $fontColor={false ? "primary" : "black"}
-                        $fontWeight={false ? "bold" : "normal"}
-                        $animation="scale"
-                    ></Button>
-                    <Button 
-                        $content="WED"
-                        $buttonStyle="icon"
-                        $fontColor={false ? "primary" : "black"}
-                        $fontWeight={false ? "bold" : "normal"}
-                        $animation="scale"
-                    ></Button>
-                    <Button 
-                        $content="THU"
-                        $buttonStyle="icon"
-                        $fontColor={false ? "primary" : "black"}
-                        $fontWeight={false ? "bold" : "normal"}
-                        $animation="scale"
-                    ></Button>
-                    <Button 
-                        $content="FRI"
-                        $buttonStyle="icon"
-                        $fontColor={false ? "primary" : "black"}
-                        $fontWeight={false ? "bold" : "normal"}
-                        $animation="scale"
-                    ></Button>
-                    <Button 
-                        $content="SAT"
-                        $buttonStyle="icon"
-                        $fontColor={false ? "primary" : "black"}
-                        $fontWeight={false ? "bold" : "normal"}
-                        $animation="scale"
-                    ></Button>
-                    <Button 
-                        $content="SUN"
-                        $buttonStyle="icon"
-                        $fontColor={false ? "primary" : "black"}
-                        $fontWeight={false ? "bold" : "normal"}
-                        $animation="scale"
-                    ></Button>
+
+                    {[1, 2, 3, 4, 5, 6, 7].map((day) => 
+                        <Button 
+                            key={day}
+                            $content={getDate(day).toLocaleDateString('en-US', {weekday: "short"}).toUpperCase()}
+                            $buttonStyle="icon"
+                            $fontColor={day==selectedWeekDay ? "primary" : "black"}
+                            $fontWeight={day==selectedWeekDay ? "bold" : "normal"}
+                            $onClick={() => updateSelectedWeekDay(day)}
+                            $animation="scale"
+                        ></Button>
+                    )}
                 </Navbar>
             </SecondHeader>
         </SecondHeaderWrapper>
@@ -324,61 +297,54 @@ const Tasks = () => {
                         */}
                     </RightButtonContainer>     
                 </ButtonWrapper>
-                
+
                 <FiltersContainer>
-                {openFilters && <>
-                    {categoryOptions.filter(filter => !selectedCategories.includes(filter)).map(filter => (
-                        <Filter 
+                    {categoryOptions.map(filter => {
+                        const isSelected = selectedCategories.some((category) => category.id === filter.id);
+                        if (openFilters || isSelected)
+                        return (<Filter 
                             key={filter.id}
                             $id={filter.id}
                             $name={filter.name}
                             $color={filter.color}
                             $isFiltersOpen={openFilters}
-                            $isSelected={false}
+                            $isSelected={isSelected}
                             $updateSelectedCategory={() => updateSelectedCategory(filter)}
-                            $onDelete={() => deleteCategory(filter)}/>
-                    ))}
-                    </>}
-                    {selectedCategories.map((filter) => (
-                        <Filter 
-                            key={filter.id}
-                            $id={filter.id}
-                            $name={filter.name}
-                            $color={filter.color}
-                            $isFiltersOpen={openFilters}
-                            $isSelected={true}
-                            $updateSelectedCategory={() => updateSelectedCategory(filter)}
-                            $onDelete={() => deleteCategory(filter)}/>
-                    ))}
+                            $onDelete={() => deleteCategory(filter)}/>)
+                    })}
                 </FiltersContainer>
                 {isLoading && <LoadingTasks>Loading Tasks...</LoadingTasks>}
                 {!isLoading && 
                     <>
-                        {tasks.map((task) => (
-                            (selectedCategories.length === 0 || selectedCategories.some((category) => category.id === task.categoryId)) && <Task key={task.taskId}
-                                $fetchAllTasks={() => fetchAllTasks()} 
-                                $taskId={task.taskId} 
-                                $isExpanded={expandedTask == task.taskId} 
-                                $updateExpandedTask={updateExpandedTask} 
-                                $date={formatDate(task.startDate)} 
-                                $startingTime={formatTime(task.startTime)} 
-                                $endingTime={formatTime(task.dueTime)} 
-                                $taskName={task.taskName} 
-                                $category={{id: task.categoryId, name: task.categoryName, color: task.color}} 
-                                $location={task.location} $notification={task.notifications} 
-                                $repeat={task.repeatIntervals} 
-                                $notes={task.notes} 
-                                $isEditing={isEditingTask} 
+                        {tasks
+                        .filter(task => selectedCategories.length === 0 || selectedCategories.some(category => category.id === task.categoryId))
+                        .map(task => (
+                            <Task
+                                key={task.taskId}
+                                $fetchAllTasks={fetchAllTasks}
+                                $taskId={task.taskId}
+                                $isExpanded={expandedTask === task.taskId}
+                                $updateExpandedTask={updateExpandedTask}
+                                $date={formatDate(task.startDate)}
+                                $startingTime={formatTime(task.startTime)}
+                                $endingTime={formatTime(task.dueTime)}
+                                $taskName={task.taskName}
+                                $category={{ id: task.categoryId, name: task.categoryName, color: task.color }}
+                                $location={task.location}
+                                $notification={task.notifications}
+                                $repeat={task.repeatIntervals}
+                                $notes={task.notes}
+                                $isEditing={isEditingTask}
                                 $updateIsEditing={updateIsEditing}
-                                $deleteTask={deleteTask} 
-                                $isActive={task.finished ? false : true}
+                                $deleteTask={deleteTask}
+                                $isActive={!task.finished}
                                 $createCategory={createCategory}
                                 $notificationOptions={notificationOptions}
                                 $notificationDefaultOption={notificationDefaultOption}
                                 $repeatOptions={repeatOptions}
                                 $repeatDefaultOption={repeatDefaultOption}
-                                $categoryOptions={categoryOptions}>
-                            </Task>
+                                $categoryOptions={categoryOptions}
+                            />
                         ))}
                     </>}        
             </LeftContainer>

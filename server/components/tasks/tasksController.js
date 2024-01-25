@@ -46,6 +46,51 @@ const getAllTasks = async (req, res) => {
   }
 };
 
+const getAllTasksByDay = async (req, res) => {
+  try {
+    const {
+      user: { userId },
+      params: { day },
+    } = req;
+    const currentDate = new Date(day);
+    const formattedDate = currentDate.toISOString().substring(0, 10);
+    const connection = await mysql.createConnection(dbConfig);
+    const [tasks] = await connection.execute(
+      "SELECT task.id AS taskId, task.user, task.name AS taskName, task.startDate, task.startTime, task.dueDate, task.dueTime, task.location, task.notes, task.finished, task.finishDate, task.finishTime, category.id AS categoryId, category.name AS categoryName, category.color " +
+        "FROM task " +
+        "INNER JOIN category ON task.category = category.id " +
+        "WHERE task.user = ? " +
+        "AND task.startDate = ?",
+      [userId, formattedDate]
+    );
+    await Promise.all(
+      tasks.map(async (task) => {
+        const [taskNotifications] = await connection.execute(
+          "SELECT taskNotification.notificationID as id, notification.name " +
+            "FROM taskNotification " +
+            "INNER JOIN notification ON taskNotification.notificationID = notification.id " +
+            "WHERE taskNotification.taskID = ?",
+          [task.taskId]
+        );
+
+        const [taskRepeatIntervals] = await connection.execute(
+          "SELECT taskRepeatInterval.repeatIntervalID as id, repeatInterval.name " +
+            "FROM taskRepeatInterval " +
+            "INNER JOIN repeatInterval ON taskRepeatInterval.repeatIntervalID = repeatInterval.id " +
+            "WHERE taskRepeatInterval.taskID = ?",
+          [task.taskId]
+        );
+        task.notifications = taskNotifications;
+        task.repeatIntervals = taskRepeatIntervals;
+      })
+    );
+
+    res.status(StatusCodes.OK).json({ tasks, count: tasks.length });
+  } catch (error) {
+    throw new InternalServerError(error.message);
+  }
+};
+
 const getTask = async (req, res) => {
   try {
     const user = req.user;
@@ -321,4 +366,5 @@ module.exports = {
   updateTask,
   deleteTask,
   concludeTask,
+  getAllTasksByDay,
 };
