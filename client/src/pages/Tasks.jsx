@@ -70,7 +70,6 @@ const Tasks = () => {
             const result = await axios.get('http://localhost:3000/api/v1/tasks/', 
             { headers: {Authorization: `Bearer ${jwtToken}`}});
             if (result.status === StatusCodes.OK) {
-                console.log(result.data.tasks);
                 setTasks(sortTasks(result.data.tasks));
             }
             setIsLoading(false);
