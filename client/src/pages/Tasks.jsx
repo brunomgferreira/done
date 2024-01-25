@@ -355,7 +355,7 @@ const Tasks = () => {
                 {!isLoading && 
                     <>
                         {tasks.map((task) => (
-                            <Task key={task.taskId}
+                            (selectedCategories.length === 0 || selectedCategories.some((category) => category.id === task.categoryId)) && <Task key={task.taskId}
                                 $fetchAllTasks={() => fetchAllTasks()} 
                                 $taskId={task.taskId} 
                                 $isExpanded={expandedTask == task.taskId} 
