@@ -12,7 +12,7 @@ import { StatusCodes } from 'http-status-codes'
 import AddTaskModal from '../components/addTaskModal/AddTaskModal'
 import Filter from '../components/elements/Filter'
 import DatePicker from 'react-date-picker'
-import "./DatePicker.css"
+import "../components/elements/DatePicker.css"
 
 const Tasks = () => {
 
@@ -258,7 +258,7 @@ const Tasks = () => {
                         <Button 
                             key={day}
                             $title={getDate(day).toLocaleString('en-UK', { day: 'numeric', month: 'numeric', year:"2-digit" })}
-                            $content={(day === 0 && selectedDate === todayDate) ? "TODAY" : getDate(day).toLocaleDateString('en-US', {weekday: "short"}).toUpperCase()}
+                            $content={(day === 0 && selectedDate.getDate() === todayDate.getDate() && selectedDate.getMonth() === todayDate.getMonth() && selectedDate.getFullYear() === todayDate.getFullYear()) ? "TODAY" : getDate(day).toLocaleDateString('en-US', {weekday: "short"}).toUpperCase()}
                             $buttonStyle="icon"
                             $fontColor={day==selectedWeekDay ? "primary" : "black"}
                             $fontWeight={day==selectedWeekDay ? "bold" : "normal"}
