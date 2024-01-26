@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import styled from 'styled-components'
 import Task from '../components/elements/Task'
@@ -6,11 +6,13 @@ import Button from '../components/elements/Button'
 import TasksStatsContainer from '../components/elements/TasksStatsContainer'
 import { FiCheckCircle, FiFilter, FiPlus } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
-import { IoSettingsOutline } from "react-icons/io5"
+import { IoSettingsOutline, IoCalendarOutline } from "react-icons/io5"
 import axios from 'axios';
 import { StatusCodes } from 'http-status-codes'
 import AddTaskModal from '../components/addTaskModal/AddTaskModal'
 import Filter from '../components/elements/Filter'
+import DatePicker from 'react-date-picker'
+import "./DatePicker.css"
 
 const Tasks = () => {
 
@@ -32,6 +34,7 @@ const Tasks = () => {
     const [categoryOptions, setCategoryOptions] = useState(JSON.parse(localStorage.getItem("categoryOptions")));
 
     const [todayDate, setTodayDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(todayDate);
 
     const toggleOpenFilters = () => {
         setOpenSettings(false);
@@ -87,12 +90,25 @@ const Tasks = () => {
             if (finishedComparison !== 0) {
                 return finishedComparison;
             }
+            const startDayComparison = new Date(a.startDate) - new Date(b.startDate);
+            if (startDayComparison !== 0) {
+                return startDayComparison;
+            }
             const startTimeComparison = new Date(`2000-01-01T${a.startTime}Z`) - new Date(`2000-01-01T${b.startTime}Z`);
             if (startTimeComparison !== 0) {
                 return startTimeComparison;
             }
             return new Date(`2000-01-01T${a.dueTime}Z`) - new Date(`2000-01-01T${b.dueTime}Z`);
         });
+    }
+
+    const isOverdue = (dueDate, dueTime, isTaskFinished) => {
+        const currentDate = todayDate;
+        const dueDateTime = new Date(dueDate);
+        const [hours, minutes, seconds] = dueTime.split(':');
+        dueDateTime.setHours(hours, minutes, seconds);
+        if(!isTaskFinished) return currentDate - dueDateTime <= 0 ? false : true;
+        return false;
     }
 
     const deleteTask = async (id) => {
@@ -213,31 +229,36 @@ const Tasks = () => {
 
     const getDate = (day) => {
         const currentDate = new Date();
-        currentDate.setDate(currentDate.getDate() + day);
+        currentDate.setDate(selectedDate.getDate() + day);
         return currentDate;
     }
 
+    useEffect(() => {
+        fetchAllTasks();
+    }, [selectedDate])
+      
     return (
     <>
         {openAddTaskModal && <AddTaskModal $createCategory={createCategory} $defaultName={newTaskName} $updateIsOpen={updateOpenAddTaskModal} $isOpen={openAddTaskModal} $fetchAllTasks={() => fetchAllTasks()}/>}
         <Header></Header>
         <SecondHeaderWrapper>
             <SecondHeader>
-                <DateContainer>{todayDate.toLocaleString('en', { day: 'numeric', month: 'short' }).toUpperCase().split(" ").reverse().join(" ") + "."}</DateContainer>
+                <DatePicker 
+                    calendarIcon={<IoCalendarOutline size={24}/>}
+                    format="dd MMM"
+                    value={selectedDate}
+                    onChange={(value) => {
+                        setSelectedDate(value);
+                        updateSelectedWeekDay(0);
+                    }}
+                />
+                {/* <DateContainer>{selectedDate.toLocaleString('en', { day: 'numeric', month: 'short' }).toUpperCase().split(" ").reverse().join(" ") + "."}</DateContainer> */}
                 <Navbar>
-                    <Button 
-                        $content="TODAY"
-                        $buttonStyle="icon"
-                        $fontColor={0==selectedWeekDay ? "primary" : "black"}
-                        $fontWeight={0==selectedWeekDay ? "bold" : "normal"}
-                        $onClick={() => updateSelectedWeekDay(0)}
-                        $animation="scale"
-                    ></Button>
-
-                    {[1, 2, 3, 4, 5, 6, 7].map((day) => 
+                    {[0, 1, 2, 3, 4, 5, 6, 7].map((day) => 
                         <Button 
                             key={day}
-                            $content={getDate(day).toLocaleDateString('en-US', {weekday: "short"}).toUpperCase()}
+                            $title={getDate(day).toLocaleString('en-UK', { day: 'numeric', month: 'numeric', year:"2-digit" })}
+                            $content={(day === 0 && selectedDate === todayDate) ? "TODAY" : getDate(day).toLocaleDateString('en-US', {weekday: "short"}).toUpperCase()}
                             $buttonStyle="icon"
                             $fontColor={day==selectedWeekDay ? "primary" : "black"}
                             $fontWeight={day==selectedWeekDay ? "bold" : "normal"}
@@ -344,6 +365,7 @@ const Tasks = () => {
                                 $repeatOptions={repeatOptions}
                                 $repeatDefaultOption={repeatDefaultOption}
                                 $categoryOptions={categoryOptions}
+                                $isOverdue={isOverdue(task.dueDate, task.dueTime, task.finished)}
                             />
                         ))}
                     </>}        
@@ -359,23 +381,27 @@ const SecondHeaderWrapper = styled.div`
 `
 
 const SecondHeader = styled.div`
-  display: flex;
-  align-items: center;
-  max-width: ${({ theme }) => theme.widths.content};
-  margin: 0 auto;
-  padding: 2rem;
-  gap: 8rem;
+    display: flex;
+    align-items: center;
+    max-width: ${({ theme }) => theme.widths.content};
+    margin: 0 auto;
+    padding: 2rem;
+    gap: 8rem;
+`
+
+const Navbar = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 4rem;
 `
 
 const DateContainer = styled.h3`
     font-weight: bold;
 `
 
-const Navbar = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 4rem;
+const Calendar = styled.input`
+    // display: none;
 `
 
 const MainWrapper = styled.main`

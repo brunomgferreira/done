@@ -54,15 +54,18 @@ const getAllTasksByDay = async (req, res) => {
     } = req;
     const currentDate = new Date(day);
     const formattedDate = currentDate.toISOString().substring(0, 10);
+
     const connection = await mysql.createConnection(dbConfig);
     const [tasks] = await connection.execute(
       "SELECT task.id AS taskId, task.user, task.name AS taskName, task.startDate, task.startTime, task.dueDate, task.dueTime, task.location, task.notes, task.finished, task.finishDate, task.finishTime, category.id AS categoryId, category.name AS categoryName, category.color " +
         "FROM task " +
         "INNER JOIN category ON task.category = category.id " +
         "WHERE task.user = ? " +
-        "AND task.startDate = ?",
-      [userId, formattedDate]
+        "AND (task.startDate = ? " +
+        "OR ((task.dueDate < CURDATE() OR (task.dueDate = CURDATE() AND task.dueTime <= CURTIME())) AND task.finished = false AND task.startDate <= ?))",
+      [userId, formattedDate, formattedDate]
     );
+
     await Promise.all(
       tasks.map(async (task) => {
         const [taskNotifications] = await connection.execute(

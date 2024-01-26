@@ -36,7 +36,8 @@ const Task = (
     $notificationDefaultOption,
     $repeatOptions,
     $repeatDefaultOption,
-    $categoryOptions }) => {
+    $categoryOptions,
+    $isOverdue }) => {
   const [isActive, setIsActive] = useState($isActive);
   const [isEditing, setIsEditing] = useState($isEditing);
 
@@ -142,9 +143,9 @@ const Task = (
     setNotes($notes);
     setIsEditing($isEditing);
   }, [$taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes, isEditing, $isExpanded]);
-
+  
   return (
-    <TaskContainer>
+    <TaskContainer $isOverdue={$isOverdue}>
       <Header $isExpanded={$isExpanded} $isEditing={isEditing} $active={isActive}>
         <LeftSide>
           {!$isExpanded &&
@@ -334,6 +335,7 @@ Task.propTypes = {
   $repeatOptions: PropTypes.array,
   $repeatDefaultOption: PropTypes.object,
   $categoryOptions: PropTypes.array,
+  $isOverdue: PropTypes.bool,
 }
 
 const TaskContainer = styled.div`
@@ -348,6 +350,11 @@ const TaskContainer = styled.div`
   box-shadow: 5px 5px 5px ${({theme}) => (theme.colors.shadow.main)};
   transition: 0.2s ease-in-out;
   background-color: white;
+  ${({$isOverdue}) => (
+    $isOverdue && css`
+      border-color: ${({theme}) => (theme.colors.red)};
+    `
+  )}
 `
 
 const Header = styled.div`

@@ -32,12 +32,28 @@ app.set("trust proxy", 1);
 app.use(
   rateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    limit: 1000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
   })
 );
-app.use(express.json());
+
 app.use(helmet());
 app.use(cors());
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
+app.options("/api/v1/auth/", (req, res) => {
+  res.header("Access-Control-Allow-Methods", "GET");
+  res.end();
+});
+
+app.use(express.json());
 
 // routes
 app.use("/api/v1/user", userRoutes);

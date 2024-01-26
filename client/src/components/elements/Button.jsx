@@ -2,9 +2,10 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled, {css} from 'styled-components'
 
-const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontColor, $fontWeight, $animation, $borderColor}) => {
+const Button = ({$onClick, $content, $size, $shape, $buttonStyle, $color, $fontColor, $fontWeight, $animation, $borderColor, $title}) => {
   return (
     <ButtonWrapper
+    title={$title}
     onClick={$onClick}
     $size={$size}
     $shape={$shape}
@@ -28,7 +29,8 @@ Button.propTypes = {
   $fontColor: PropTypes.string,
   $fontWeight: PropTypes.string,
   $animation: PropTypes.string,
-  $borderColor: PropTypes.string
+  $borderColor: PropTypes.string,
+  $title: PropTypes.string,
 }
 
 const ButtonWrapper = styled.button`

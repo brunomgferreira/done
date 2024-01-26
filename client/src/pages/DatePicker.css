@@ -1,0 +1,92 @@
+@import 'react-date-picker/dist/DatePicker.css';
+@import 'react-calendar/dist/Calendar.css';
+
+.react-date-picker__wrapper {
+  border: 0;
+  gap: 0;
+  font-size: 1.8rem;
+}
+
+.react-date-picker__calendar-button {
+  padding: 0;
+}
+
+.react-date-picker__button:enabled:hover .react-date-picker__button__icon,
+.react-date-picker__button:enabled:focus .react-date-picker__button__icon {
+  stroke: #0c40b7;
+  scale: 1.1;
+}
+
+.react-date-picker__clear-button {
+  display: none;
+}
+
+.react-date-picker__inputGroup {
+  padding: 0;
+  font-weight: bold;
+}
+
+.react-calendar {
+  width: 350px;
+  max-width: 100%;
+  background: white;
+  border: 1px solid #a0a096;
+  border-radius: 2rem;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.125em;
+  padding: 2rem;
+}
+
+.react-calendar button {
+  margin: 0;
+  border: 0;
+  border-radius: 2rem;
+  outline: none;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: #f1f1f1;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: #f1f1f1;
+}
+
+.react-calendar button:enabled:hover {
+  cursor: pointer;
+  scale: 1.05;
+}
+
+.react-calendar__tile {
+  max-width: 100%;
+  padding: 10px 6.6667px;
+  background: none;
+  border-radius: 2rem;
+  text-align: center;
+  line-height: 16px;
+  font: inherit;
+  font-size: 0.833em;
+}
+
+.react-calendar__tile--now {
+  background: #ffff76;
+  /* change to orange */
+}
+
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background: #ffffa9;
+}
+
+.react-calendar__tile--active {
+  background: #0c40b7;
+  color: white;
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: #1087ff;
+}
+
