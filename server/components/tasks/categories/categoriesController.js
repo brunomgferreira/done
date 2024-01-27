@@ -1,5 +1,4 @@
-const mysql = require("mysql2/promise");
-const dbConfig = require("../../../db/dbConfig");
+const pool = require("../../../db/dbConnect");
 const { StatusCodes } = require("http-status-codes");
 const {
   BadRequestError,
@@ -12,11 +11,13 @@ const getAllCategories = async (req, res) => {
     const {
       user: { userId },
     } = req;
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [categories] = await connection.execute(
       "SELECT id, name, color FROM category WHERE user = ? OR id = 1",
       [userId]
     );
+
+    connection.release();
 
     res.status(StatusCodes.OK).json({ categories, count: categories.length });
   } catch (error) {
@@ -27,7 +28,7 @@ const getAllCategories = async (req, res) => {
 const getCategory = async (req, res) => {
   try {
     const categoryID = req.params.id;
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [rows] = await connection.execute(
       "SELECT id, name, color FROM category WHERE id = ?",
       [categoryID]
@@ -38,6 +39,9 @@ const getCategory = async (req, res) => {
     if (!category) {
       throw new NotFoundError(`No task category with id ${categoryID}`);
     }
+
+    connection.release();
+
     res.status(StatusCodes.OK).json({ category });
   } catch (error) {
     if (
@@ -64,7 +68,7 @@ const createCategory = async (req, res) => {
       );
     }
 
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     // check if user with userId exists in db
     const [userResult] = await connection.execute(
       "SELECT * FROM user WHERE id = ?",
@@ -80,6 +84,8 @@ const createCategory = async (req, res) => {
     );
 
     const categoryId = result.insertId;
+
+    connection.release();
 
     res.status(StatusCodes.CREATED).json(categoryId);
   } catch (error) {
@@ -101,7 +107,7 @@ const deleteCategory = async (req, res) => {
   } = req;
 
   try {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
 
     // check if category with categoryId exists in db
     const [taskResult] = await connection.execute(
@@ -116,6 +122,12 @@ const deleteCategory = async (req, res) => {
       categoryId,
       userId,
     ]);
+
+    connection.release();
+
+    res
+      .status(StatusCodes.OK)
+      .send(`Category with id ${categoryId} was deleted.`);
   } catch (error) {
     if (
       error.statusCode == StatusCodes.NOT_FOUND ||
@@ -126,10 +138,6 @@ const deleteCategory = async (req, res) => {
       throw new InternalServerError(error.message);
     }
   }
-
-  res
-    .status(StatusCodes.OK)
-    .send(`Category with id ${categoryId} was deleted.`);
 };
 
 module.exports = {

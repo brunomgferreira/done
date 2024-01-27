@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
-const mysql = require("mysql2/promise");
-const dbConfig = require("../../db/dbConfig");
+const pool = require("../../db/dbConnect");
 const UserValidator = require("./userValidator");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -21,11 +20,13 @@ const registerUser = async (firstName, lastName, email, password) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     await connection.execute(
       "INSERT INTO user (firstName, lastName, email, password) VALUES (?, ?, ?, ?)",
       [firstName, lastName, email, hashedPassword]
     );
+
+    connection.release();
 
     return { message: "User registered successfully" };
   } catch (error) {
@@ -40,12 +41,14 @@ const registerUser = async (firstName, lastName, email, password) => {
 
 const authenticateUser = async (email, password) => {
   try {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [rows] = await connection.execute(
       "SELECT * FROM user WHERE email = ?",
       [email]
     );
     const user = rows[0];
+
+    connection.release();
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign(
@@ -66,6 +69,8 @@ const authenticateUser = async (email, password) => {
         "Incorrect email or password. Please try again."
       );
     else throw new InternalServerError("Internal Server Error");
+  } finally {
+    connection.release();
   }
 };
 

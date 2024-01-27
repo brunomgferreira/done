@@ -36,6 +36,9 @@ const Tasks = () => {
     const [todayDate, setTodayDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(todayDate);
 
+    const [numberOfTasks, setNumberOfTasks] = useState(0);
+    const [numberOfDoneTasks, setNumberOfDoneTasks] = useState(0);
+
     const toggleOpenFilters = () => {
         setOpenSettings(false);
         setOpenFilters(!openFilters);
@@ -174,15 +177,6 @@ const Tasks = () => {
         }
     }
 
-    useEffect(() => {
-        fetchAllTasks();
-        fetchCategoryOptions();
-    }, [])
-
-    useEffect(() => {
-        fetchAllTasks();
-    }, [selectedWeekDay])
-
     const formatDate = (date) => {
         const inputDate = new Date(date);
 
@@ -233,10 +227,52 @@ const Tasks = () => {
         return currentDate;
     }
 
+    const getNumberOfTasks = async () => {
+        try {
+            const jwtToken = localStorage.getItem('token');
+            if(!jwtToken) throw new Error;
+            const result = await axios.get(`http://localhost:3000/api/v1/tasks/number/day/${new Date()}`, 
+            { headers: {Authorization: `Bearer ${jwtToken}`}});
+            if (result.status === StatusCodes.OK) {
+                setNumberOfTasks(result.data.numberOfTasks);
+            }
+        } catch (error) {
+            console.error("There was an error:", error.message);
+        }
+    };
+
+    const getNumberOfDoneTasks = async () => {
+        try {
+            const jwtToken = localStorage.getItem('token');
+            if(!jwtToken) throw new Error;
+            const result = await axios.get(`http://localhost:3000/api/v1/tasks/done/number/day/${new Date()}`, 
+            { headers: {Authorization: `Bearer ${jwtToken}`}});
+            if (result.status === StatusCodes.OK) {
+                setNumberOfDoneTasks(result.data.numberOfDoneTasks);
+            }
+        } catch (error) {
+            console.error("There was an error:", error.message);
+        }
+    }
+
     useEffect(() => {
         fetchAllTasks();
     }, [selectedDate])
+
+    useEffect(() => {
+        fetchAllTasks();
+    }, [selectedWeekDay])
       
+    useEffect(() => {
+        fetchAllTasks();
+        fetchCategoryOptions();
+    }, [])
+
+    useEffect(() => {
+        getNumberOfTasks();
+        getNumberOfDoneTasks();
+    }, [tasks])
+
     return (
     <>
         {openAddTaskModal && <AddTaskModal $createCategory={createCategory} $defaultName={newTaskName} $updateIsOpen={updateOpenAddTaskModal} $isOpen={openAddTaskModal} $fetchAllTasks={() => fetchAllTasks()}/>}
@@ -258,7 +294,7 @@ const Tasks = () => {
                         <Button 
                             key={day}
                             $title={getDate(day).toLocaleString('en-UK', { day: 'numeric', month: 'numeric', year:"2-digit" })}
-                            $content={(day === 0 && selectedDate.getDate() === todayDate.getDate() && selectedDate.getMonth() === todayDate.getMonth() && selectedDate.getFullYear() === todayDate.getFullYear()) ? "TODAY" : getDate(day).toLocaleDateString('en-US', {weekday: "short"}).toUpperCase()}
+                            $content={(getDate(day).getDate() === todayDate.getDate() && getDate(day).getMonth() === todayDate.getMonth() && getDate(day).getFullYear() === todayDate.getFullYear()) ? "TODAY" : getDate(day).toLocaleDateString('en-US', {weekday: "short"}).toUpperCase()}
                             $buttonStyle="icon"
                             $fontColor={day==selectedWeekDay ? "primary" : "black"}
                             $fontWeight={day==selectedWeekDay ? "bold" : "normal"}
@@ -370,7 +406,7 @@ const Tasks = () => {
                         ))}
                     </>}        
             </LeftContainer>
-            <TasksStatsContainer />
+            <TasksStatsContainer $numberOfTasks={numberOfTasks} $numberOfDoneTasks={numberOfDoneTasks}/>
         </MainWrapper>
     </>)
 }

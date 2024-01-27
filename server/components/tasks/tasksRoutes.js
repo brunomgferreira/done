@@ -9,11 +9,15 @@ const {
   deleteTask,
   concludeTask,
   getAllTasksByDay,
+  getNumberOfTasksByDay,
+  getNumberOfDoneTasksByDay,
 } = require("./tasksController");
 
 router.route("/").post(createTask).get(getAllTasks);
 router.route("/:id").get(getTask).delete(deleteTask).patch(updateTask);
 router.route("/done/:id").patch(concludeTask);
 router.route("/day/:day").get(getAllTasksByDay);
+router.route("/number/day/:day").get(getNumberOfTasksByDay);
+router.route("/done/number/day/:day").get(getNumberOfDoneTasksByDay);
 
 module.exports = router;

@@ -1,5 +1,4 @@
-const mysql = require("mysql2/promise");
-const dbConfig = require("../../db/dbConfig");
+const pool = require("../../db/dbConnect");
 const { StatusCodes } = require("http-status-codes");
 const {
   BadRequestError,
@@ -10,7 +9,7 @@ const {
 const getAllTasks = async (req, res) => {
   try {
     const user = req.user;
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [tasks] = await connection.execute(
       "SELECT task.id AS taskId, task.user, task.name AS taskName, task.startDate, task.startTime, task.dueDate, task.dueTime, task.location, task.notes, task.finished, task.finishDate, task.finishTime, category.id AS categoryId, category.name AS categoryName, category.color " +
         "FROM task " +
@@ -40,6 +39,8 @@ const getAllTasks = async (req, res) => {
       })
     );
 
+    connection.release();
+
     res.status(StatusCodes.OK).json({ tasks, count: tasks.length });
   } catch (error) {
     throw new InternalServerError(error.message);
@@ -55,7 +56,7 @@ const getAllTasksByDay = async (req, res) => {
     const currentDate = new Date(day);
     const formattedDate = currentDate.toISOString().substring(0, 10);
 
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [tasks] = await connection.execute(
       "SELECT task.id AS taskId, task.user, task.name AS taskName, task.startDate, task.startTime, task.dueDate, task.dueTime, task.location, task.notes, task.finished, task.finishDate, task.finishTime, category.id AS categoryId, category.name AS categoryName, category.color " +
         "FROM task " +
@@ -88,7 +89,68 @@ const getAllTasksByDay = async (req, res) => {
       })
     );
 
+    connection.release();
+
     res.status(StatusCodes.OK).json({ tasks, count: tasks.length });
+  } catch (error) {
+    throw new InternalServerError(error.message);
+  }
+};
+
+const getNumberOfTasksByDay = async (req, res) => {
+  try {
+    const {
+      user: { userId },
+      params: { day },
+    } = req;
+    const currentDate = new Date(day);
+    const formattedDate = currentDate.toISOString().substring(0, 10);
+
+    const connection = await pool.getConnection();
+    const [result] = await connection.execute(
+      "SELECT count(*) numberOfTasks " +
+        "FROM task " +
+        "INNER JOIN category ON task.category = category.id " +
+        "WHERE task.user = ? " +
+        "AND task.startDate = ?",
+      [userId, formattedDate]
+    );
+
+    const numberOfTasks = result[0].numberOfTasks;
+
+    connection.release();
+
+    res.status(StatusCodes.OK).json({ numberOfTasks });
+  } catch (error) {
+    throw new InternalServerError(error.message);
+  }
+};
+
+const getNumberOfDoneTasksByDay = async (req, res) => {
+  try {
+    const {
+      user: { userId },
+      params: { day },
+    } = req;
+    const currentDate = new Date(day);
+    const formattedDate = currentDate.toISOString().substring(0, 10);
+
+    const connection = await pool.getConnection();
+    const [result] = await connection.execute(
+      "SELECT count(*) numberOfTasks " +
+        "FROM task " +
+        "INNER JOIN category ON task.category = category.id " +
+        "WHERE task.user = ? " +
+        "AND task.startDate = ? " +
+        "AND task.finished = true",
+      [userId, formattedDate]
+    );
+
+    const numberOfDoneTasks = result[0].numberOfTasks;
+
+    connection.release();
+
+    res.status(StatusCodes.OK).json({ numberOfDoneTasks });
   } catch (error) {
     throw new InternalServerError(error.message);
   }
@@ -98,7 +160,7 @@ const getTask = async (req, res) => {
   try {
     const user = req.user;
     const taskID = req.params.id;
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [rows] = await connection.execute(
       "SELECT * FROM task WHERE id = ? AND user = ?",
       [taskID, user.userId]
@@ -109,6 +171,9 @@ const getTask = async (req, res) => {
     if (!task) {
       throw new NotFoundError(`No task with id ${taskID}`);
     }
+
+    connection.release();
+
     res.status(StatusCodes.OK).json({ task });
   } catch (error) {
     if (
@@ -152,7 +217,7 @@ const createTask = async (req, res) => {
       );
     }
 
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     // check if user with userId exists in db
     const [userResult] = await connection.execute(
       "SELECT * FROM user WHERE id = ?",
@@ -196,6 +261,8 @@ const createTask = async (req, res) => {
       );
     });
 
+    connection.release();
+
     res.status(StatusCodes.CREATED).json(taskId);
   } catch (error) {
     if (
@@ -223,7 +290,7 @@ const updateTask = async (req, res) => {
       );
     }
 
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
 
     // check if task with taskId exists in db
     const [taskResult] = await connection.execute(
@@ -262,6 +329,8 @@ const updateTask = async (req, res) => {
         );
       });
 
+      connection.release();
+
       res.status(StatusCodes.OK).json({ taskId });
     } else {
       throw new NotFoundError(`No task with id ${taskId}`);
@@ -285,7 +354,7 @@ const deleteTask = async (req, res) => {
   } = req;
 
   try {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
 
     // check if task with taskId exists in db
     const [taskResult] = await connection.execute(
@@ -300,6 +369,10 @@ const deleteTask = async (req, res) => {
       taskId,
       userId,
     ]);
+
+    connection.release();
+
+    res.status(StatusCodes.OK).send(`Task with id ${taskId} was deleted.`);
   } catch (error) {
     if (
       error.statusCode == StatusCodes.NOT_FOUND ||
@@ -310,8 +383,6 @@ const deleteTask = async (req, res) => {
       throw new InternalServerError(error.message);
     }
   }
-
-  res.status(StatusCodes.OK).send(`Task with id ${taskId} was deleted.`);
 };
 
 const concludeTask = async (req, res) => {
@@ -321,7 +392,7 @@ const concludeTask = async (req, res) => {
   } = req;
 
   try {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
 
     // check if task with taskId exists in db
     const [taskResult] = await connection.execute(
@@ -348,6 +419,12 @@ const concludeTask = async (req, res) => {
       "UPDATE task SET finished = ?, finishDate = ?, finishTime = ? WHERE id = ? AND user = ?",
       [true, formattedDate, formattedTime, taskId, userId]
     );
+
+    connection.release();
+
+    res
+      .status(StatusCodes.OK)
+      .send(`Task with id ${taskId} was marked as done.`);
   } catch (error) {
     if (
       error.statusCode == StatusCodes.NOT_FOUND ||
@@ -358,8 +435,6 @@ const concludeTask = async (req, res) => {
       throw new InternalServerError(error.message);
     }
   }
-
-  res.status(StatusCodes.OK).send(`Task with id ${taskId} was marked as done.`);
 };
 
 module.exports = {
@@ -370,4 +445,6 @@ module.exports = {
   deleteTask,
   concludeTask,
   getAllTasksByDay,
+  getNumberOfTasksByDay,
+  getNumberOfDoneTasksByDay,
 };

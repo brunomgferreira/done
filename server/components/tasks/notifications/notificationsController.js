@@ -1,5 +1,4 @@
-const mysql = require("mysql2/promise");
-const dbConfig = require("../../../db/dbConfig");
+const pool = require("../../../db/dbConnect");
 const { StatusCodes } = require("http-status-codes");
 const {
   BadRequestError,
@@ -9,10 +8,12 @@ const {
 
 const getAllNotifications = async (req, res) => {
   try {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [notifications] = await connection.execute(
       "SELECT * FROM notification"
     );
+
+    connection.release();
 
     res
       .status(StatusCodes.OK)
@@ -25,7 +26,7 @@ const getAllNotifications = async (req, res) => {
 const getNotification = async (req, res) => {
   try {
     const notificationID = req.params.id;
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [rows] = await connection.execute(
       "SELECT * FROM notification WHERE id = ?",
       [notificationID]
@@ -36,6 +37,9 @@ const getNotification = async (req, res) => {
     if (!notification) {
       throw new NotFoundError(`No task notification with id ${notificationID}`);
     }
+
+    connection.release();
+
     res.status(StatusCodes.OK).json({ notification });
   } catch (error) {
     if (

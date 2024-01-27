@@ -1,14 +1,15 @@
-const mysql = require("mysql2/promise");
-const dbConfig = require("../db/dbConfig");
+const pool = require("../db/dbConnect");
 
 const isUniqueValidator = async (value, table, column) => {
-  const connection = await mysql.createConnection(dbConfig);
-
   try {
+    const connection = await pool.getConnection();
+
     const [rows] = await connection.query(
       `SELECT COUNT(*) as count FROM ${table} WHERE ${column} = ?`,
       [value]
     );
+
+    await connection.end();
 
     const count = rows[0].count;
 
@@ -20,8 +21,6 @@ const isUniqueValidator = async (value, table, column) => {
     }
   } catch (error) {
     console.error("Database error:", error);
-  } finally {
-    await connection.end();
   }
 };
 

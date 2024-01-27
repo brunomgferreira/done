@@ -1,5 +1,4 @@
-const mysql = require("mysql2/promise");
-const dbConfig = require("../../../db/dbConfig");
+const pool = require("../../../db/dbConnect");
 const { StatusCodes } = require("http-status-codes");
 const {
   BadRequestError,
@@ -9,10 +8,12 @@ const {
 
 const getAllRepeatIntervals = async (req, res) => {
   try {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [repeatIntervals] = await connection.execute(
       "SELECT * FROM repeatInterval"
     );
+
+    connection.release();
 
     res
       .status(StatusCodes.OK)
@@ -25,7 +26,7 @@ const getAllRepeatIntervals = async (req, res) => {
 const getRepeatIntervals = async (req, res) => {
   try {
     const repeatID = req.params.id;
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await pool.getConnection();
     const [rows] = await connection.execute(
       "SELECT * FROM repeatInterval WHERE id = ?",
       [repeatID]
@@ -36,6 +37,9 @@ const getRepeatIntervals = async (req, res) => {
     if (!repeatInterval) {
       throw new NotFoundError(`No task repeat intervals with id ${repeatID}`);
     }
+
+    connection.release();
+
     res.status(StatusCodes.OK).json({ repeatInterval });
   } catch (error) {
     if (

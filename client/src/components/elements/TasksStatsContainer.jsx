@@ -1,21 +1,52 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FiCheckCircle } from 'react-icons/fi'
 import { IoStatsChart } from 'react-icons/io5'
 import styled from 'styled-components'
 import Button from './Button'
+import axios from 'axios';
+import { StatusCodes } from 'http-status-codes'
 
-function TasksStatsContainer() {
-  return (
+function TasksStatsContainer({ $numberOfTasks, $numberOfDoneTasks }) {
+
+    const [quote, setQuote] = useState("");
+
+    const getQuote = (numberOfTasks, numberOfDoneTasks) => {
+        if(numberOfTasks === 0 && numberOfDoneTasks === 0) {
+            setQuote("You have no tasks today!");
+            return;
+        }
+        if(numberOfDoneTasks === 0) {
+            setQuote("You haven't done any tasks yet.");
+            return;
+        }
+        if(numberOfTasks == numberOfDoneTasks) {
+            setQuote("Congratulations! All tasks are done.");
+            return;
+        }
+        const completionPercentage = (numberOfDoneTasks / numberOfTasks) * 100;
+        if (completionPercentage > 50) {
+            setQuote("You're making good progress!");
+            return;
+        }
+        setQuote("Keep going, you're on the right track!");
+    }
+    
+    useEffect(() => {
+        getQuote($numberOfTasks, $numberOfDoneTasks);
+    }, [$numberOfDoneTasks, $numberOfTasks])
+    
+
+return (
     <TasksStatsWrapper>
         <div>
             <h1>Today tasks:</h1>
         </div>
 
         <NumTasksWrapper>
-            <NumTasksDone>0</NumTasksDone>
-            <NumTasks>/ 3 done.</NumTasks>
+            <NumTasksDone>{$numberOfDoneTasks}</NumTasksDone>
+            <NumTasks>/ {$numberOfTasks} done.</NumTasks>
         </NumTasksWrapper>
-        <Quote>You haven't done any tasks yet.</Quote> 
+        <Quote>{quote}</Quote> 
         {/* You haven't done any tasks yet.
             Keep going, you're on the right track!
             You're making good progress!
@@ -49,8 +80,7 @@ function TasksStatsContainer() {
             ></Button>
         </ButtonContainer> */}
     </TasksStatsWrapper>
-  )
-}
+)}
 
 
 const TasksStatsWrapper = styled.div`
