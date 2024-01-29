@@ -84,20 +84,6 @@ const ButtonWrapper = styled.button`
       line-height: 0;
     `}
 
-  /* $SHAPE */
-
-  ${({ $shape }) =>
-    $shape === 'round' &&
-    css`
-      border-radius: 50px;
-    `}
-
-  ${({ $shape }) =>
-    $shape === 'squared' &&
-    css`
-      border-radius: 5px;
-    `}
-
   /* COLOR */
 
   ${({ $color }) =>
@@ -158,6 +144,13 @@ const ButtonWrapper = styled.button`
       border-bottom: 2px solid transparent;
       border-radius: 0;
     `}
+  
+  ${({ $buttonStyle }) =>
+    $buttonStyle === 'border' &&
+    css`
+      border: 2px solid white;
+      border-radius: 0;
+    `}
 
   ${({ $buttonStyle }) =>
     $buttonStyle === 'icon' &&
@@ -203,10 +196,16 @@ const ButtonWrapper = styled.button`
       color: ${({theme}) => theme.colors.primary};
     `}
 
-    ${({ $fontColor }) => 
+  ${({ $fontColor }) => 
     $fontColor === 'red' &&
     css`
       color: ${({theme}) => theme.colors.red};
+    `}
+
+  ${({ $fontColor }) => 
+    $fontColor === 'grey' &&
+    css`
+      color: ${({theme}) => theme.colors.grey.transparent};
     `}
 
   /* BORDER COLOR */
@@ -215,6 +214,12 @@ const ButtonWrapper = styled.button`
     $borderColor === 'primary' &&
     css`
       border-color: ${({theme}) => theme.colors.primary};
+    `}
+
+  ${({ $borderColor }) => 
+    $borderColor === 'white' &&
+    css`
+      border-color: ${({theme}) => theme.colors.light};
     `}
   
   ${({ $borderColor }) => 
@@ -300,8 +305,8 @@ const ButtonWrapper = styled.button`
           }
         `}
 
-        ${({ $color }) =>
-        $color === 'white' &&
+      ${({ $color, $buttonStyle }) =>
+        $color === 'white' && $buttonStyle !== 'border' &&
         css`
           transition: 0.05s ease-in-out;
 
@@ -315,6 +320,36 @@ const ButtonWrapper = styled.button`
             transform: scale(0.98);
           }
         `}
+
+      ${({ $color, $buttonStyle }) =>
+        $color === 'white' && $buttonStyle === 'border' &&
+        css`
+          transition: 0.05s ease-in-out;
+
+          &:hover {
+            background-color: ${({theme}) => theme.colors.primary};;
+            color: ${({theme}) => theme.colors.light};
+            transform: scale(1.06);
+          }
+
+          &:active {
+            transform: scale(0.98);
+          }
+        `}
+    `}
+
+  /* $SHAPE */
+
+  ${({ $shape }) =>
+    $shape === 'round' &&
+    css`
+      border-radius: 50px;
+    `}
+
+  ${({ $shape }) =>
+    $shape === 'squared' &&
+    css`
+      border-radius: 5px;
     `}
 `
 

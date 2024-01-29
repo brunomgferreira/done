@@ -156,6 +156,31 @@ const getNumberOfDoneTasksByDay = async (req, res) => {
   }
 };
 
+const getNumberOfOverdueTasks = async (req, res) => {
+  try {
+    const {
+      user: { userId },
+    } = req;
+
+    const connection = await pool.getConnection();
+    const [result] = await connection.execute(
+      "SELECT count(*) numberOfOverdueTasks " +
+        "FROM task " +
+        "WHERE task.user = ? " +
+        "AND ((task.dueDate < CURDATE() OR (task.dueDate = CURDATE() AND task.dueTime <= CURTIME())) AND task.finished = false AND task.startDate <= CURDATE())",
+      [userId]
+    );
+
+    const numberOfOverdueTasks = result[0].numberOfOverdueTasks;
+
+    connection.release();
+
+    res.status(StatusCodes.OK).json({ numberOfOverdueTasks });
+  } catch (error) {
+    throw new InternalServerError(error.message);
+  }
+};
+
 const getTask = async (req, res) => {
   try {
     const user = req.user;
@@ -447,4 +472,5 @@ module.exports = {
   getAllTasksByDay,
   getNumberOfTasksByDay,
   getNumberOfDoneTasksByDay,
+  getNumberOfOverdueTasks,
 };

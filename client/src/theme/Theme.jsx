@@ -8,6 +8,7 @@ const Theme = {
         light: '#F9F9F9',
         main: '#D2D2D2',
         dark: '#858585',
+        transparent: '#ffffff72',
       },
       hover: {
         primary: '#35eec2',

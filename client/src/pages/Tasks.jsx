@@ -38,6 +38,7 @@ const Tasks = () => {
 
     const [numberOfTasks, setNumberOfTasks] = useState(0);
     const [numberOfDoneTasks, setNumberOfDoneTasks] = useState(0);
+    const [numberOfOverdueTasks, setNumberOfOverdueTasks] = useState(0);
 
     const toggleOpenFilters = () => {
         setOpenSettings(false);
@@ -253,7 +254,21 @@ const Tasks = () => {
         } catch (error) {
             console.error("There was an error:", error.message);
         }
-    }
+    };
+
+    const getNumberOfOverdueTasks = async () => {
+        try {
+            const jwtToken = localStorage.getItem('token');
+            if(!jwtToken) throw new Error;
+            const result = await axios.get(`http://localhost:3000/api/v1/tasks/overdue/number`, 
+            { headers: {Authorization: `Bearer ${jwtToken}`}});
+            if (result.status === StatusCodes.OK) {
+                setNumberOfOverdueTasks(result.data.numberOfOverdueTasks);
+            }
+        } catch (error) {
+            console.error("There was an error:", error.message);
+        }
+    };
 
     useEffect(() => {
         fetchAllTasks();
@@ -271,6 +286,7 @@ const Tasks = () => {
     useEffect(() => {
         getNumberOfTasks();
         getNumberOfDoneTasks();
+        getNumberOfOverdueTasks();
     }, [tasks])
 
     return (
@@ -288,7 +304,6 @@ const Tasks = () => {
                         updateSelectedWeekDay(0);
                     }}
                 />
-                {/* <DateContainer>{selectedDate.toLocaleString('en', { day: 'numeric', month: 'short' }).toUpperCase().split(" ").reverse().join(" ") + "."}</DateContainer> */}
                 <Navbar>
                     {[0, 1, 2, 3, 4, 5, 6, 7].map((day) => 
                         <Button 
@@ -406,7 +421,11 @@ const Tasks = () => {
                         ))}
                     </>}        
             </LeftContainer>
-            <TasksStatsContainer $numberOfTasks={numberOfTasks} $numberOfDoneTasks={numberOfDoneTasks}/>
+            <TasksStatsContainer 
+                $numberOfTasks={numberOfTasks} 
+                $numberOfDoneTasks={numberOfDoneTasks}
+                $numberOfOverdueTasks={numberOfOverdueTasks}
+            />
         </MainWrapper>
     </>)
 }
@@ -432,14 +451,6 @@ const Navbar = styled.div`
     gap: 4rem;
 `
 
-const DateContainer = styled.h3`
-    font-weight: bold;
-`
-
-const Calendar = styled.input`
-    // display: none;
-`
-
 const MainWrapper = styled.main`
     max-width: ${({ theme }) => theme.widths.content};
     margin: 0 auto;
@@ -448,19 +459,6 @@ const MainWrapper = styled.main`
     justify-content: center;
     margin-top: 4rem;
     gap: 4rem;
-`
-
-const FilterContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 1rem;      
-    padding: 1.5rem 2rem 1.5rem 2rem;
-    border: 2px solid ${({theme}) => (theme.colors.primary)};
-    border-radius: 3rem;
-    box-shadow: 5px 5px 5px ${({theme}) => (theme.colors.shadow.main)};
-    transition: 0.2s ease-in-out;
-    background-color: transparent;
 `
 
 const FiltersContainer = styled.div`

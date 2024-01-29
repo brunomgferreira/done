@@ -1,86 +1,207 @@
 import React, { useEffect, useState } from 'react'
-import { FiCheckCircle } from 'react-icons/fi'
-import { IoStatsChart } from 'react-icons/io5'
+import PropTypes from 'prop-types'
+import { FiCheckCircle, FiFilter, FiAlertTriangle, FiAlertCircle, FiList } from 'react-icons/fi'
+import { FaListCheck } from "react-icons/fa6";
+import { IoStatsChart, IoTimeOutline, IoList } from 'react-icons/io5'
 import styled from 'styled-components'
 import Button from './Button'
+import CountDownTimer from './CountDownTimer';
 import axios from 'axios';
 import { StatusCodes } from 'http-status-codes'
 
-function TasksStatsContainer({ $numberOfTasks, $numberOfDoneTasks }) {
+const TasksStatsContainer = ({ $numberOfTasks, $numberOfDoneTasks, $numberOfOverdueTasks }) => {
 
-    const [quote, setQuote] = useState("");
+    const [todayTasksQuote, setTodayTasksQuote] = useState("");
 
-    const getQuote = (numberOfTasks, numberOfDoneTasks) => {
+    const getTodayTasksQuote = (numberOfTasks, numberOfDoneTasks) => {
         if(numberOfTasks === 0 && numberOfDoneTasks === 0) {
-            setQuote("You have no tasks today!");
+            setTodayTasksQuote("You have no tasks today!");
             return;
         }
         if(numberOfDoneTasks === 0) {
-            setQuote("You haven't done any tasks yet.");
+            setTodayTasksQuote("You haven't done any tasks yet.");
             return;
         }
         if(numberOfTasks == numberOfDoneTasks) {
-            setQuote("Congratulations! All tasks are done.");
+            setTodayTasksQuote("Congratulations! All tasks are done.");
             return;
         }
         const completionPercentage = (numberOfDoneTasks / numberOfTasks) * 100;
         if (completionPercentage > 50) {
-            setQuote("You're making good progress!");
+            setTodayTasksQuote("You're making good progress!");
             return;
         }
-        setQuote("Keep going, you're on the right track!");
-    }
+        setTodayTasksQuote("Keep going, you're on the right track!");
+    };
     
     useEffect(() => {
-        getQuote($numberOfTasks, $numberOfDoneTasks);
-    }, [$numberOfDoneTasks, $numberOfTasks])
-    
+        getTodayTasksQuote($numberOfTasks, $numberOfDoneTasks);
+    }, [$numberOfDoneTasks, $numberOfTasks]);
+
+
+
+    const [overdueTasksQuote, setOverdueTasksQuote] = useState("");
+
+    const getOverdueTasksQuote = (numberOfOverdueTasks) => {
+        if(numberOfOverdueTasks === 0) {
+            setOverdueTasksQuote("You have no overdue tasks!");
+            return;
+        }
+        setOverdueTasksQuote("Don't be lazy! Finish your overdue tasks.");
+    };
+
+    useEffect(() => {
+        getOverdueTasksQuote($numberOfOverdueTasks);
+    }, [$numberOfOverdueTasks]);
+
+    const [timerStatus, setTimerStatus] = useState();
+    const [isTimerActive, setIsTimerActive] = useState();
+
+    useEffect(() => {
+        const pomodoroTimerStatus = sessionStorage.getItem("pomodoroTimerStatus");
+        if(pomodoroTimerStatus) setTimerStatus(pomodoroTimerStatus);
+        else {
+            setTimerStatus("focus");
+            sessionStorage.setItem("pomodoroTimerStatus", "focus");
+        }
+
+        const isPomodoroTimerActive = sessionStorage.getItem("isPomodoroTimerActive");
+        if(isPomodoroTimerActive) setIsTimerActive(isPomodoroTimerActive);
+        else {
+            setIsTimerActive(false);
+            sessionStorage.setItem("isPomodoroTimerActive", false);
+        }
+    }, [])
+
+    const updateTimerStatus = (value) => {
+        setTimerStatus(value);
+        sessionStorage.setItem("pomodoroTimerStatus", value);
+    }
+
+    useEffect(() => {
+        setIsTimerActive(false);
+    }, [timerStatus])
+
+    const [selectedTab, setSelectedTab] = useState("todayTasks");
 
 return (
     <TasksStatsWrapper>
-        <div>
-            <h1>Today tasks:</h1>
-        </div>
-
-        <NumTasksWrapper>
-            <NumTasksDone>{$numberOfDoneTasks}</NumTasksDone>
-            <NumTasks>/ {$numberOfTasks} done.</NumTasks>
-        </NumTasksWrapper>
-        <Quote>{quote}</Quote> 
-        {/* You haven't done any tasks yet.
-            Keep going, you're on the right track!
-            You're making good progress!
-            Congratulations! All tasks are done.*/}
-        {/* <ButtonContainer>
-            <Button 
-                $content=
-                {
-                    <>
-                        Today Statistics<span>&nbsp;&nbsp;</span><IoStatsChart size={20} />
-                    </>
-                }
-                $size="wide"
-                $shape="round"
-                $color="white"
-                $fontColor="primary"
-                $animation="smallScale"
-            ></Button>
-            <Button
-                $content=
-                {
-                    <>
-                        Completed Tasks<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} />
-                    </>
-                }
-                $size="wide"
-                $shape="round"
-                $color="white"
-                $fontColor="primary"
-                $animation="smallScale"
-            ></Button>
-        </ButtonContainer> */}
+        <Navbar>
+            <>
+                {selectedTab === "todayTasks" && <h1>Today tasks:</h1>}
+                {selectedTab === "overdueTasks" && <h1>Overdue tasks:</h1>}
+                {selectedTab === "pomodoroTimer" && <h1>Pomodoro timer:</h1>}
+            </>
+            <ButtonContainer>
+                <Button
+                    $content={<IoList size={24}/>}
+                    $buttonStyle="roundIcon"
+                    $animation="scale"
+                    $color={selectedTab === "todayTasks" ? "white" : "transparent"} //"white" "transparent"
+                    $fontColor={selectedTab === "todayTasks" ? "primary" : "white"} //"primary" "white"
+                    $borderColor="white"
+                    $onClick={() => setSelectedTab("todayTasks")}
+                ></Button>
+                <Button
+                    $content={<FiAlertTriangle size={24}/>}
+                    $buttonStyle="roundIcon"
+                    $animation="scale"
+                    $color={selectedTab === "overdueTasks" ? "white" : "transparent"}
+                    $fontColor={selectedTab === "overdueTasks" ? "primary" : "white"}
+                    $borderColor="white"
+                    $onClick={() => setSelectedTab("overdueTasks")}
+                ></Button>
+                <Button
+                    $content={<IoTimeOutline size={25}/>}
+                    $buttonStyle="roundIcon"
+                    $animation="scale"
+                    $color={selectedTab === "pomodoroTimer" ? "white" : "transparent"}
+                    $fontColor={selectedTab === "pomodoroTimer" ? "primary" : "white"}
+                    $borderColor="white"
+                    $onClick={() => setSelectedTab("pomodoroTimer")}
+                ></Button>
+            </ButtonContainer>
+        </Navbar>
+        {selectedTab === "todayTasks" &&
+        <>
+            <InfoWrapper>
+                <NumTasksDone>{$numberOfDoneTasks}</NumTasksDone>
+                <NumTasks>/ {$numberOfTasks} done.</NumTasks>
+            </InfoWrapper>
+            <Quote>{todayTasksQuote}</Quote> 
+        </>}
+        {selectedTab === "overdueTasks" &&
+        <>
+            <InfoWrapper>
+                <NumOverdueTasksDone>{$numberOfOverdueTasks}</NumOverdueTasksDone>
+            </InfoWrapper>
+            <Quote>{overdueTasksQuote}</Quote> 
+        </>}
+        {selectedTab === "pomodoroTimer" &&
+        <>
+            <TimerButtonWrapper>
+                <Button
+                    $content={"Pomodoro"}
+                    $buttonStyle="text"
+                    $animation="scale"
+                    $color={"transparent"} //"white" "transparent"
+                    $fontColor={timerStatus === "focus" ? "white" : "grey"} //"primary" "white"
+                    $borderColor="white"
+                    $onClick={() => updateTimerStatus("focus")}
+                ></Button>
+                <Button
+                    $content={"Short Break"}
+                    $buttonStyle="text"
+                    $animation="scale"
+                    $color={"transparent"} //"white" "transparent"
+                    $fontColor={timerStatus === "shortBreak" ? "white" : "grey"} //"primary" "white"
+                    $borderColor="white"
+                    $onClick={() => updateTimerStatus("shortBreak")}
+                ></Button>
+                <Button
+                    $content={"Long Break"}
+                    $buttonStyle="text"
+                    $animation="scale"
+                    $color={"transparent"} //"white" "transparent"
+                    $fontColor={timerStatus === "longBreak" ? "white" : "grey"} //"primary" "white"
+                    $borderColor="white"
+                    $onClick={() => updateTimerStatus("longBreak")}
+                ></Button>
+            </TimerButtonWrapper>
+            <TimerWrapper>
+                <CountDownTimer 
+                    $timerCountdownValue={
+                        (timerStatus === "focus") ? 25*60 :
+                        (timerStatus === "shortBreak") ? 5*60 :
+                        (timerStatus === "longBreak") ? 15*60 : 0
+                    } 
+                    $isTimerActive={isTimerActive} 
+                />
+            </TimerWrapper>
+            <StartStopButtonWrapper>
+                <Button
+                    $content={!isTimerActive ? "Start" : "Pause"}
+                    $buttonStyle="border"
+                    $shape="round"
+                    $animation="color"
+                    $size={"mediumWide"}
+                    $color="white" //"white" "transparent"
+                    $fontColor="primary" //"primary" "white"
+                    $borderColor="white"
+                    $onClick={() => setIsTimerActive(!isTimerActive)}
+                ></Button>
+            </StartStopButtonWrapper>
+            <TimerQuote>{timerStatus === "focus" ? "Time to focus!" : "Time for a break!"}</TimerQuote> 
+        </>}
+        
     </TasksStatsWrapper>
 )}
+
+TasksStatsContainer.propTypes = {
+    $numberOfTasks: PropTypes.number, 
+    $numberOfDoneTasks: PropTypes.number,
+    $numberOfOverdueTasks: PropTypes.number,
+}
 
 
 const TasksStatsWrapper = styled.div`
@@ -102,7 +223,21 @@ const TasksStatsWrapper = styled.div`
     /* box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.03); */
 `
 
-const NumTasksWrapper = styled.div`
+const Navbar = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 4rem;
+`
+
+const ButtonContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+`
+
+const InfoWrapper = styled.div`
     display: flex;
     flex-direction: row;
     align-items: end;
@@ -110,8 +245,32 @@ const NumTasksWrapper = styled.div`
     padding: 3rem;
 `
 
+const TimerWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    justify-content: center;
+`
+
+const StartStopButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+`
+
 const NumTasksDone = styled.h1`
     font-size: 10rem;
+    line-height: 7rem;
+`
+
+const NumOverdueTasksDone = styled.h1`
+    font-size: 10rem;
+    line-height: 7rem;
+`
+
+const Timer = styled.h1`
+    font-size: 8rem;
     line-height: 7rem;
 `
 
@@ -123,11 +282,15 @@ const Quote = styled.h4`
     margin-bottom: 6rem;
 `
 
-const ButtonContainer = styled.div`
+const TimerQuote = styled.h4`
+    text-align: center;
+    margin-bottom: 3rem;
+`
+
+const TimerButtonWrapper = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    padding: 3rem 0rem 0rem 0rem;
+    justify-content: center;
     gap: 2rem;
 `
 

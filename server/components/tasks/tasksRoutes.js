@@ -11,6 +11,7 @@ const {
   getAllTasksByDay,
   getNumberOfTasksByDay,
   getNumberOfDoneTasksByDay,
+  getNumberOfOverdueTasks,
 } = require("./tasksController");
 
 router.route("/").post(createTask).get(getAllTasks);
@@ -19,5 +20,6 @@ router.route("/done/:id").patch(concludeTask);
 router.route("/day/:day").get(getAllTasksByDay);
 router.route("/number/day/:day").get(getNumberOfTasksByDay);
 router.route("/done/number/day/:day").get(getNumberOfDoneTasksByDay);
+router.route("/overdue/number").get(getNumberOfOverdueTasks);
 
 module.exports = router;
