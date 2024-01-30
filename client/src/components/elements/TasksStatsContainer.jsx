@@ -65,8 +65,10 @@ const TasksStatsContainer = ({ $numberOfTasks, $numberOfDoneTasks, $numberOfOver
             sessionStorage.setItem("pomodoroTimerStatus", "focus");
         }
 
-        const isPomodoroTimerActive = sessionStorage.getItem("isPomodoroTimerActive");
-        if(isPomodoroTimerActive) setIsTimerActive(isPomodoroTimerActive);
+        const isPomodoroTimerActive = JSON.parse(sessionStorage.getItem("isPomodoroTimerActive"));
+        if(isPomodoroTimerActive) {
+            setIsTimerActive(isPomodoroTimerActive);
+        } 
         else {
             setIsTimerActive(false);
             sessionStorage.setItem("isPomodoroTimerActive", false);
@@ -74,13 +76,16 @@ const TasksStatsContainer = ({ $numberOfTasks, $numberOfDoneTasks, $numberOfOver
     }, [])
 
     const updateTimerStatus = (value) => {
+        if(timerStatus === value) return;
         setTimerStatus(value);
         sessionStorage.setItem("pomodoroTimerStatus", value);
+        updateIsTimerActive(false);
     }
 
-    useEffect(() => {
-        setIsTimerActive(false);
-    }, [timerStatus])
+    const updateIsTimerActive = (value) => {
+        setIsTimerActive(value);
+        sessionStorage.setItem("isPomodoroTimerActive", value);
+    }
 
     const [selectedTab, setSelectedTab] = useState("todayTasks");
 
@@ -188,7 +193,10 @@ return (
                     $color="white" //"white" "transparent"
                     $fontColor="primary" //"primary" "white"
                     $borderColor="white"
-                    $onClick={() => setIsTimerActive(!isTimerActive)}
+                    $onClick={() => {
+                        setIsTimerActive(!isTimerActive);
+                        sessionStorage.setItem("isPomodoroTimerActive", true);
+                    }}
                 ></Button>
             </StartStopButtonWrapper>
             <TimerQuote>{timerStatus === "focus" ? "Time to focus!" : "Time for a break!"}</TimerQuote> 

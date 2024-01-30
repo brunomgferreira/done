@@ -29,8 +29,9 @@ const CountDownTimer = ({ $timerCountdownValue, $isTimerActive }) => {
   };
 
   useEffect(() => {
-    if($isTimerActive) startTimer();
-    else pauseTimer();
+    const isPomodoroTimerActive = JSON.parse(sessionStorage.getItem("isPomodoroTimerActive"));
+    if($isTimerActive || isPomodoroTimerActive) startTimer();
+    else pauseTimer(); 
   }, [$isTimerActive])
 
   useEffect(() => {
