@@ -34,7 +34,24 @@ const App = () => {
     }
 
     isAuthenticated()
-  }, [])
+  }, []);
+
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Clear sessionStorage
+      sessionStorage.removeItem("isPomodoroTimerActive");
+      sessionStorage.removeItem("journalEntry");
+    };
+
+    // Attach the event listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Clean up the event listener when the component is unmounted
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
   
   if (isLoading) return <></>;
   return (

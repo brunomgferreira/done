@@ -87,7 +87,18 @@ const TasksStatsContainer = ({ $numberOfTasks, $numberOfDoneTasks, $numberOfOver
         sessionStorage.setItem("isPomodoroTimerActive", value);
     }
 
-    const [selectedTab, setSelectedTab] = useState("todayTasks");
+    const [selectedTab, setSelectedTab] = useState();
+
+    const updateSelectedTab = (value) => {
+        setSelectedTab(value);
+        sessionStorage.setItem("tasksStatsContainerSelectedTab", value);
+    }
+
+    useEffect(() => {
+        const currentSelectedTab = sessionStorage.getItem("tasksStatsContainerSelectedTab");
+        if(currentSelectedTab) updateSelectedTab(currentSelectedTab);
+        else updateSelectedTab("todayTasks");
+    }, [])
 
 return (
     <TasksStatsWrapper>
@@ -105,7 +116,7 @@ return (
                     $color={selectedTab === "todayTasks" ? "white" : "transparent"} //"white" "transparent"
                     $fontColor={selectedTab === "todayTasks" ? "primary" : "white"} //"primary" "white"
                     $borderColor="white"
-                    $onClick={() => setSelectedTab("todayTasks")}
+                    $onClick={() => updateSelectedTab("todayTasks")}
                 ></Button>
                 <Button
                     $content={<FiAlertTriangle size={24}/>}
@@ -114,7 +125,7 @@ return (
                     $color={selectedTab === "overdueTasks" ? "white" : "transparent"}
                     $fontColor={selectedTab === "overdueTasks" ? "primary" : "white"}
                     $borderColor="white"
-                    $onClick={() => setSelectedTab("overdueTasks")}
+                    $onClick={() => updateSelectedTab("overdueTasks")}
                 ></Button>
                 <Button
                     $content={<IoTimeOutline size={25}/>}
@@ -123,7 +134,7 @@ return (
                     $color={selectedTab === "pomodoroTimer" ? "white" : "transparent"}
                     $fontColor={selectedTab === "pomodoroTimer" ? "primary" : "white"}
                     $borderColor="white"
-                    $onClick={() => setSelectedTab("pomodoroTimer")}
+                    $onClick={() => updateSelectedTab("pomodoroTimer")}
                 ></Button>
             </ButtonContainer>
         </Navbar>
@@ -195,7 +206,7 @@ return (
                     $borderColor="white"
                     $onClick={() => {
                         setIsTimerActive(!isTimerActive);
-                        sessionStorage.setItem("isPomodoroTimerActive", true);
+                        sessionStorage.setItem("isPomodoroTimerActive", !isTimerActive);
                     }}
                 ></Button>
             </StartStopButtonWrapper>
