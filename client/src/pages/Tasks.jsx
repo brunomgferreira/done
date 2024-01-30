@@ -458,6 +458,7 @@ const MainWrapper = styled.main`
     align-items: column;
     justify-content: center;
     margin-top: 4rem;
+    margin-bottom: 4rem;
     gap: 4rem;
 `
 

@@ -6,6 +6,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Tasks from './pages/Tasks'
 import axios from 'axios';
+import Journal from './pages/Journal'
+import Statistics from './pages/Statistics'
 
 
 const App = () => {
@@ -39,9 +41,11 @@ const App = () => {
     <Router>
       <Routes>  
         <Route exact path='/' element={<Home />} />
-        <Route exact path='/register' element={<Register />} />
+        <Route exact path='/register' element={!isLoggedIn ? <Register /> : <Navigate to="/tasks" />}/>
         <Route exact path='/login' element={!isLoggedIn ? <Login /> : <Navigate to="/tasks" />} />
         <Route exact path='/tasks' element={isLoggedIn ? <Tasks /> : <Navigate to="/login" />} />
+        <Route exact path='/journal' element={isLoggedIn ? <Journal /> : <Navigate to="/login" />} />
+        <Route exact path='/stats' element={isLoggedIn ? <Statistics /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   )

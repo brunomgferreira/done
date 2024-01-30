@@ -11,9 +11,11 @@ const Header = () => {
         </NavbarLink>
         <Navbar>
           <NavbarLink to='/tasks'>Tasks</NavbarLink>
-          <NavbarLink to='/schedule'>Schedule</NavbarLink>
+          {/* <NavbarLink to='/schedule'>Schedule</NavbarLink>
           <NavbarLink to='/finances'>Finances</NavbarLink>
-          <NavbarLink to='/profile'>Profile</NavbarLink>
+          <NavbarLink to='/profile'>Profile</NavbarLink> */}
+          <NavbarLink to='/journal'>Journal</NavbarLink>
+          <NavbarLink to='/stats'>Statistics</NavbarLink>
         </Navbar>
       </Container>
     </HeaderWrapper>
