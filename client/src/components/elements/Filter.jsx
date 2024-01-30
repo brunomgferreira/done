@@ -22,7 +22,7 @@ const Filter = ({ $id, $name, $color, $isFiltersOpen, $isSelected, $updateSelect
         <Button 
           $content={$isSelected ? <IoMdClose size={18}/> : <FiPlus size={18}/> }
           $buttonStyle="icon"
-          $fontColor={$isSelected ? "primary" : "grey"}
+          $fontColor={$isSelected ? "primary" : "black"}
           $fontWeight={"normal"}
           $onClick={() => $updateSelectedCategory()}
           $animation="scale"
@@ -32,7 +32,7 @@ const Filter = ({ $id, $name, $color, $isFiltersOpen, $isSelected, $updateSelect
         <Button 
           $content={<HiOutlineTrash size={18}/> }
           $buttonStyle="icon"
-          $fontColor={$isSelected ? "primary" : "grey"}
+          $fontColor={$isSelected ? "primary" : "black"}
           $fontWeight={"normal"}
           $onClick={() => $onDelete()}
           $animation="scale"
