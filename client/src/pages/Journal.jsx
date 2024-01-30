@@ -21,19 +21,90 @@ const Journal = () => {
   const [selectedWeekDay, setSelectedWeekDay] = useState(0);
   const [todayDate, setTodayDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(todayDate);
+  const [journalEntry, setJournalEntry] = useState(null);
+  const [currentColor, setCurrentColor] = useState('#000000');
+  const [formatBlockValue, setFormatBlockValue] = useState('');
+  const [fontSizeValue, setFontSizeValue] = useState('');
 
+  const fetchJournalEntry = async () => {
+    const currentJournalEntry = JSON.parse(sessionStorage.getItem("journalEntry"));
+
+    if(currentJournalEntry && currentJournalEntry != "undefined") setJournalEntry(currentJournalEntry);
+    else {
+      const result = await fetchJournalEntryByDay(getDate(selectedWeekDay));
+      if(!result) {
+        await createJournalEntry("", getDate(selectedWeekDay));
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchJournalEntry();
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.removeItem("journalEntry");
+    fetchJournalEntry();
+  }, [selectedDate, selectedWeekDay])
+
+  const fetchJournalEntryByDay = async (day) => {
+    try {
+      const jwtToken = localStorage.getItem('token');
+      if(!jwtToken) throw new Error;
+      const result = await axios.get(`http://localhost:3000/api/v1/journal/day/${day}`, 
+      { headers: {Authorization: `Bearer ${jwtToken}`}});
+      if (result.status === StatusCodes.OK) {
+        sessionStorage.setItem("journalEntry", JSON.stringify(result.data.journalEntry));
+        setJournalEntry(result.data.journalEntry);
+        return true;
+      }
+    } catch (error) {
+        console.error("There was an error:", error.message);
+        return false;
+    }
+  };
+
+  const createJournalEntry = async (notes, day) => {
+    try {
+      const jwtToken = localStorage.getItem('token');
+      if(!jwtToken) throw new Error;
+      const result = await axios.post('http://localhost:3000/api/v1/journal/', 
+      { text: notes, date: day },
+      { headers: {Authorization: `Bearer ${jwtToken}`}});
+      sessionStorage.setItem("journalEntry", JSON.stringify({id: result.data.journalEntryId, notes: notes, date: day}));
+      console.log({id: result.data.journalEntryId, notes: notes, date: day});
+      setJournalEntry({id: result.data.journalEntryId, notes: notes, date: day});
+    } catch (error) {
+        console.log(error);
+    }
+  };
+
+  const updateJournalEntry = async (id, notes) => {
+    try {
+      const jwtToken = localStorage.getItem('token');
+      if(!jwtToken) throw new Error;
+      await axios.patch(`http://localhost:3000/api/v1/journal/${id}`, 
+      { text: notes },
+      { headers: {Authorization: `Bearer ${jwtToken}`}});
+    } catch (error) {
+        console.log(error);
+    }
+  }
+
+
+  useEffect(() => {
+    if(journalEntry) contentRef.current.innerHTML = journalEntry.notes ? journalEntry.notes : 'Lorem, ipsum...';
+  }, [journalEntry]);
 
   const updateSelectedWeekDay = (newValue) => {
       setSelectedWeekDay(newValue);
-  }
+  };
 
   const getDate = (day) => {
       const currentDate = new Date();
       currentDate.setDate(selectedDate.getDate() + day);
       return currentDate;
-  }
-
-  
+  };
 
   const contentRef = useRef(null);
 
@@ -63,16 +134,11 @@ const Journal = () => {
     });
   };
 
-  const [currentColor, setCurrentColor] = useState('#000000');
-
   const handleColorChange = (event) => {
     const newColor = event.target.value;
     setCurrentColor(newColor);
     formatDoc('foreColor', newColor);
   };
-
-  const [formatBlockValue, setFormatBlockValue] = useState('');
-  const [fontSizeValue, setFontSizeValue] = useState('');
 
   const handleFormatBlockChange = (event) => {
     const newValue = event.target.value;
@@ -86,8 +152,14 @@ const Journal = () => {
     formatDoc('fontSize', newValue);
   };
 
-  const save = () => {
-    console.log(contentRef.current.innerHTML);
+  const save = async () => {
+    const newContent = contentRef.current.innerHTML;
+    await setJournalEntry(async (prevJournalEntry) => { 
+      sessionStorage.setItem("journalEntry", JSON.stringify({ ...prevJournalEntry, notes: contentRef.current.innerHTML }));
+      updateJournalEntry(prevJournalEntry.id, contentRef.current.innerHTML);
+      return { ...prevJournalEntry, notes: contentRef.current.innerHTML };
+    });
+    contentRef.current.innerHTML = newContent ? newContent : 'Lorem, ipsum...';
   };
 
   return (

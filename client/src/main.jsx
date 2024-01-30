@@ -22,12 +22,12 @@ Notification.requestPermission(function (permission) {
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <ThemeProvider theme={Theme}>
       <GlobalStyle />
         <App />
     </ThemeProvider>
-  </React.StrictMode>,
+  // </React.StrictMode>,
 )
 
 export { TimerWorker };

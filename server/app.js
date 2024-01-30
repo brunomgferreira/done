@@ -21,6 +21,7 @@ const tasksRoutes = require("./components/tasks/tasksRoutes");
 const notificationsRoutes = require("./components/tasks/notifications/notificationsRoutes");
 const repeatIntervalsRoutes = require("./components/tasks/repeatIntervals/repeatIntervalsRoutes");
 const categoriesRoutes = require("./components/tasks/categories/categoriesRoutes");
+const journalRoutes = require("./components/journal/journalRoutes");
 const authenticateUser = require("./middleware/authenticateUser");
 // const taskRoutes = require('./components/task/taskRoutes');
 
@@ -58,6 +59,7 @@ app.use(express.json());
 // routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/tasks", authenticateUser, tasksRoutes);
+app.use("/api/v1/journal", authenticateUser, journalRoutes);
 app.use("/api/v1/tasksNotifications", authenticateUser, notificationsRoutes);
 app.use("/api/v1/tasksRepeat", authenticateUser, repeatIntervalsRoutes);
 app.use("/api/v1/tasksCategory", authenticateUser, categoriesRoutes);
