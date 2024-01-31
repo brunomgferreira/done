@@ -10,6 +10,7 @@ const {
 } = require("../../errors");
 
 const registerUser = async (firstName, lastName, email, password) => {
+  let connection;
   try {
     await UserValidator.validateRegistrationInput(
       firstName,
@@ -20,7 +21,7 @@ const registerUser = async (firstName, lastName, email, password) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     await connection.execute(
       "INSERT INTO user (firstName, lastName, email, password) VALUES (?, ?, ?, ?)",
       [firstName, lastName, email, hashedPassword]
@@ -36,12 +37,15 @@ const registerUser = async (firstName, lastName, email, password) => {
     throw new InternalServerError(
       JSON.stringify({ main: "Internal Server Error." })
     );
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 const authenticateUser = async (email, password) => {
+  let connection;
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     const [rows] = await connection.execute(
       "SELECT * FROM user WHERE email = ?",
       [email]
@@ -49,7 +53,6 @@ const authenticateUser = async (email, password) => {
     const user = rows[0];
 
     connection.release();
-
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign(
         { userId: user.id, firstName: user.firstName, lastName: user.lastName },
@@ -70,7 +73,7 @@ const authenticateUser = async (email, password) => {
       );
     else throw new InternalServerError("Internal Server Error");
   } finally {
-    connection.release();
+    if (connection) connection.release();
   }
 };
 

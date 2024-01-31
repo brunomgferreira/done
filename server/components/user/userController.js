@@ -13,8 +13,6 @@ const register = async (req, res) => {
       msg: "Registration failed",
       errors: JSON.parse(error.message),
     });
-  } finally {
-    connection.release();
   }
 };
 
@@ -27,8 +25,6 @@ const login = async (req, res) => {
   } catch (error) {
     const statusCode = error.statusCode || 500;
     res.status(statusCode).json({ message: error.message });
-  } finally {
-    connection.release();
   }
 };
 

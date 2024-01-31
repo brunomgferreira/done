@@ -21,7 +21,6 @@ const Tasks = () => {
     const [openFilters, setOpenFilters] = useState(false);
     const [openSettings, setOpenSettings] = useState(false);
     const [newTaskName, setNewTaskName] = useState("");
-    const [selectedWeekDay, setSelectedWeekDay] = useState(0);
     const [isEditingTask, setIsEditingTask] = useState(false);
     const [tasks, setTasks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -35,6 +34,7 @@ const Tasks = () => {
 
     const [todayDate, setTodayDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(todayDate);
+    const [selectedWeekDay, setSelectedWeekDay] = useState(0);
 
     const [numberOfTasks, setNumberOfTasks] = useState(0);
     const [numberOfDoneTasks, setNumberOfDoneTasks] = useState(0);
