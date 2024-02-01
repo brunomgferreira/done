@@ -18,9 +18,9 @@ import DatePicker from 'react-date-picker'
 import "../components/elements/DatePicker.css"
 
 const Journal = () => {
-  const [selectedWeekDay, setSelectedWeekDay] = useState(0);
   const [todayDate, setTodayDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(todayDate);
+  const [selectedDate, setSelectedDate] = useState(sessionStorage.getItem("selectedDate") ? new Date(JSON.parse(sessionStorage.getItem("selectedDate"))) : todayDate);
+  const [selectedWeekDay, setSelectedWeekDay] = useState(sessionStorage.getItem("selectedWeekDay") ? JSON.parse(sessionStorage.getItem("selectedWeekDay")) : 0);
   const [journalEntry, setJournalEntry] = useState(null);
   const [currentColor, setCurrentColor] = useState('#000000');
   const [formatBlockValue, setFormatBlockValue] = useState('');
@@ -72,7 +72,6 @@ const Journal = () => {
       { text: notes, date: day },
       { headers: {Authorization: `Bearer ${jwtToken}`}});
       sessionStorage.setItem("journalEntry", JSON.stringify({id: result.data.journalEntryId, notes: notes, date: day}));
-      console.log({id: result.data.journalEntryId, notes: notes, date: day});
       setJournalEntry({id: result.data.journalEntryId, notes: notes, date: day});
     } catch (error) {
         console.log(error);
@@ -97,11 +96,17 @@ const Journal = () => {
   }, [journalEntry]);
 
   const updateSelectedWeekDay = (newValue) => {
-      setSelectedWeekDay(newValue);
-  };
+    setSelectedWeekDay(newValue);
+    sessionStorage.setItem("selectedWeekDay", newValue);
+  }
+
+  const updateSelectedDate = (newValue) => {
+      setSelectedDate(newValue);
+      sessionStorage.setItem("selectedDate", JSON.stringify(newValue));
+  }
 
   const getDate = (day) => {
-      const currentDate = new Date();
+      const currentDate = new Date(selectedDate);
       currentDate.setDate(selectedDate.getDate() + day);
       return currentDate;
   };
@@ -172,8 +177,8 @@ const Journal = () => {
                     format="dd MMM"
                     value={selectedDate}
                     onChange={(value) => {
-                        setSelectedDate(value);
-                        updateSelectedWeekDay(0);
+                      updateSelectedDate(value);
+                      updateSelectedWeekDay(0);
                     }}
                 />
                 <Navbar>

@@ -33,8 +33,8 @@ const Tasks = () => {
     const [categoryOptions, setCategoryOptions] = useState(JSON.parse(localStorage.getItem("categoryOptions")));
 
     const [todayDate, setTodayDate] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(todayDate);
-    const [selectedWeekDay, setSelectedWeekDay] = useState(0);
+    const [selectedDate, setSelectedDate] = useState(sessionStorage.getItem("selectedDate") ? new Date(JSON.parse(sessionStorage.getItem("selectedDate"))) : todayDate);
+    const [selectedWeekDay, setSelectedWeekDay] = useState(sessionStorage.getItem("selectedWeekDay") ? JSON.parse(sessionStorage.getItem("selectedWeekDay")) : 0);
 
     const [numberOfTasks, setNumberOfTasks] = useState(0);
     const [numberOfDoneTasks, setNumberOfDoneTasks] = useState(0);
@@ -65,6 +65,12 @@ const Tasks = () => {
 
     const updateSelectedWeekDay = (newValue) => {
         setSelectedWeekDay(newValue);
+        sessionStorage.setItem("selectedWeekDay", newValue);
+    }
+
+    const updateSelectedDate = (newValue) => {
+        setSelectedDate(newValue);
+        sessionStorage.setItem("selectedDate", JSON.stringify(newValue));
     }
 
     const updateIsEditing = (newValue) => {
@@ -300,7 +306,7 @@ const Tasks = () => {
                     format="dd MMM"
                     value={selectedDate}
                     onChange={(value) => {
-                        setSelectedDate(value);
+                        updateSelectedDate(value);
                         updateSelectedWeekDay(0);
                     }}
                 />
