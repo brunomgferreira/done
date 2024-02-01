@@ -7,7 +7,7 @@ import Register from './pages/Register'
 import Tasks from './pages/Tasks'
 import axios from 'axios';
 import Journal from './pages/Journal'
-import Statistics from './pages/Statistics'
+import PropTypes from 'prop-types'
 
 
 const App = () => {
@@ -52,6 +52,12 @@ const App = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
+
+  const logOut = () => {
+    sessionStorage.clear();
+    localStorage.clear();
+    setIsLoggedIn(false);
+  };
   
   if (isLoading) return <></>;
   return (
@@ -62,10 +68,22 @@ const App = () => {
         <Route exact path='/login' element={!isLoggedIn ? <Login /> : <Navigate to="/tasks" />} />
         <Route exact path='/tasks' element={isLoggedIn ? <Tasks /> : <Navigate to="/login" />} />
         <Route exact path='/journal' element={isLoggedIn ? <Journal /> : <Navigate to="/login" />} />
-        <Route exact path='/stats' element={isLoggedIn ? <Statistics /> : <Navigate to="/login" />} />
+        <Route exact path='/logout' element={ <LogOutComponent $logOut={logOut}/>} />
       </Routes>
     </Router>
   )
+}
+
+
+const LogOutComponent = ({ $logOut }) => {
+  useEffect(() => {
+    $logOut();
+  }, [$logOut]);
+  return <Navigate to='/' />;
+}
+
+LogOutComponent.propTypes = {
+  $logOut: PropTypes.func,
 }
 
 export default App

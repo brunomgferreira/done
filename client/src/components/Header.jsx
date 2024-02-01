@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 const Header = () => {
+
   return (
     <HeaderWrapper>
       <Container>
@@ -11,11 +12,11 @@ const Header = () => {
         </NavbarLink>
         <Navbar>
           <NavbarLink to='/tasks'>Tasks</NavbarLink>
+          <NavbarLink to='/journal'>Journal</NavbarLink>
           {/* <NavbarLink to='/schedule'>Schedule</NavbarLink>
           <NavbarLink to='/finances'>Finances</NavbarLink>
           <NavbarLink to='/profile'>Profile</NavbarLink> */}
-          <NavbarLink to='/journal'>Journal</NavbarLink>
-          <NavbarLink to='/stats'>Statistics</NavbarLink>
+          <NavbarLink to='/logout'>Log out</NavbarLink>
         </Navbar>
       </Container>
     </HeaderWrapper>

@@ -26,11 +26,11 @@ const Tasks = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedCategories, setSelectedCategories] = useState([]);
     
-    const [notificationOptions, setNotificationOptions] = useState(JSON.parse(localStorage.getItem("notificationOptions")));
-    const [notificationDefaultOption, setNotificationDefaultOption] = useState(notificationOptions[0]);
-    const [repeatOptions, setRepeatOptions] = useState(JSON.parse(localStorage.getItem("repeatOptions")));
-    const [repeatDefaultOption, setRepeatDefaultOption] = useState(repeatOptions[0]);
-    const [categoryOptions, setCategoryOptions] = useState(JSON.parse(localStorage.getItem("categoryOptions")));
+    const [notificationOptions, setNotificationOptions] = useState(localStorage.getItem("notificationOptions") ? JSON.parse(localStorage.getItem("notificationOptions")) : []);
+    const [notificationDefaultOption, setNotificationDefaultOption] = useState(notificationOptions.length > 0 ? notificationOptions[0] : {});
+    const [repeatOptions, setRepeatOptions] = useState(localStorage.getItem("repeatOptions") ? JSON.parse(localStorage.getItem("repeatOptions")) : []);
+    const [repeatDefaultOption, setRepeatDefaultOption] = useState(repeatOptions.length > 0 ? repeatOptions[0] : {});
+    const [categoryOptions, setCategoryOptions] = useState(localStorage.getItem("categoryOptions") ? JSON.parse(localStorage.getItem("categoryOptions")) : []);
 
     const [todayDate, setTodayDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(sessionStorage.getItem("selectedDate") ? new Date(JSON.parse(sessionStorage.getItem("selectedDate"))) : todayDate);
