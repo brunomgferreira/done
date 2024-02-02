@@ -64,8 +64,8 @@ const getAllTasksByDay = async (req, res) => {
         "FROM task " +
         "INNER JOIN category ON task.category = category.id " +
         "WHERE task.user = ? " +
-        "AND (task.startDate = ? " +
-        "OR ((task.dueDate < CURDATE() OR (task.dueDate = CURDATE() AND task.dueTime <= CURTIME())) AND task.finished = false AND task.startDate <= ?))",
+        "AND (DATE(task.startDate) = DATE(?) " +
+        "OR ((DATE(task.dueDate) < CURDATE() OR (DATE(task.dueDate) = CURDATE() AND task.dueTime <= CURTIME())) AND task.finished = false AND DATE(task.startDate) <= DATE(?)))",
       [userId, formattedDate, formattedDate]
     );
 
@@ -609,8 +609,15 @@ const deleteTask = async (req, res) => {
         "(SELECT t2.id AS taskID " +
         "FROM task t2 " +
         "JOIN taskRepeatInterval ON t2.id = taskRepeatInterval.taskID " +
-        "WHERE originalTaskID = ? AND t2.user = ?) AS subquery) ",
-      [taskId, userId]
+        "WHERE originalTaskID = ? AND t2.user = ?) AS subquery) " +
+        "OR id IN " +
+        "(SELECT DISTINCT taskID " +
+        "FROM " +
+        "(SELECT taskRepeatInterval2.originalTaskID AS taskID " +
+        "FROM task t3 " +
+        "JOIN taskRepeatInterval taskRepeatInterval2 ON t3.id = taskRepeatInterval2.taskID " +
+        "WHERE t3.id = ? AND t3.user = ?) AS subquery2) ",
+      [taskId, userId, taskId, userId]
     );
 
     await connection.execute("DELETE FROM task WHERE id = ? AND user = ?", [
