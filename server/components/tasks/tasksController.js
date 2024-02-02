@@ -601,6 +601,18 @@ const deleteTask = async (req, res) => {
     if (taskResult.length <= 0)
       throw new NotFoundError(`No task with id ${taskId}`);
 
+    await connection.execute(
+      "DELETE FROM task " +
+        "WHERE id IN " +
+        "(SELECT DISTINCT taskID " +
+        "FROM " +
+        "(SELECT t2.id AS taskID " +
+        "FROM task t2 " +
+        "JOIN taskRepeatInterval ON t2.id = taskRepeatInterval.taskID " +
+        "WHERE originalTaskID = ? AND t2.user = ?) AS subquery) ",
+      [taskId, userId]
+    );
+
     await connection.execute("DELETE FROM task WHERE id = ? AND user = ?", [
       taskId,
       userId,
@@ -608,7 +620,9 @@ const deleteTask = async (req, res) => {
 
     connection.release();
 
-    res.status(StatusCodes.OK).send(`Task with id ${taskId} was deleted.`);
+    res
+      .status(StatusCodes.OK)
+      .send(`Task with id ${taskId} and it's related tasks were deleted.`);
   } catch (error) {
     if (
       error.statusCode == StatusCodes.NOT_FOUND ||
