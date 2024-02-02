@@ -229,7 +229,7 @@ const Tasks = () => {
     }
 
     const getDate = (day) => {
-        const currentDate = new Date();
+        const currentDate = new Date(selectedDate);
         currentDate.setDate(selectedDate.getDate() + day);
         return currentDate;
     }
