@@ -515,12 +515,12 @@ const createTask = async (req, res) => {
 const updateTask = async (req, res) => {
   try {
     const {
-      body: { category, location, notification, repeat, notes },
+      body: { category, location, notification, notes },
       user: { userId },
       params: { id: taskId },
     } = req;
 
-    if (!category || !notification || !repeat) {
+    if (!category || !notification) {
       throw new BadRequestError(
         "Missing required attributes in the request body."
       );
@@ -534,35 +534,51 @@ const updateTask = async (req, res) => {
       [taskId, userId]
     );
 
+    const [rows] = await connection.execute(
+      "SELECT * " +
+        "FROM taskRepeatInterval " +
+        "WHERE taskRepeatInterval.taskID = ?",
+      [taskId]
+    );
+
+    const originalTaskId = rows[0].originalTaskID
+      ? rows[0].originalTaskID
+      : taskId;
+
+    let [taskIdArray] = await connection.execute(
+      "SELECT distinct t2.id AS taskID " +
+        "FROM task t2 " +
+        "JOIN taskRepeatInterval ON t2.id = taskRepeatInterval.taskID " +
+        "WHERE originalTaskID = ? AND t2.user = ?",
+      [originalTaskId, userId]
+    );
+
+    taskIdArray = taskIdArray.map((option) => option.taskID);
+
+    taskIdArray.push(originalTaskId);
+
+    const placeholders = taskIdArray.map(() => "?").join(",");
+
     if (taskResult.length > 0) {
       // update task in db
       await connection.execute(
-        "UPDATE task SET category=?, location=?, notes=? WHERE id=? AND user=?",
-        [category, location, notes, taskId, userId]
+        "UPDATE task SET category=?, location=?, notes=? " +
+          `WHERE id IN (${placeholders})`,
+        [category, location, notes, ...taskIdArray]
       );
-
-      // update taskRepeatInterval db
-      await connection.execute(
-        "DELETE FROM taskRepeatInterval WHERE taskID = ?",
-        [taskId]
-      );
-      repeat.forEach(async (option) => {
-        await connection.execute(
-          "INSERT INTO taskRepeatInterval (taskID, repeatIntervalID) VALUES (?, ?)",
-          [taskId, option.id]
-        );
-      });
 
       // update taskNotification db
-      await connection.execute(
-        "DELETE FROM taskNotification WHERE taskID = ?",
-        [taskId]
-      );
-      notification.forEach(async (option) => {
+      taskIdArray.forEach(async (id) => {
         await connection.execute(
-          "INSERT INTO taskNotification (taskID, notificationID) VALUES (?, ?)",
-          [taskId, option.id]
+          "DELETE FROM taskNotification WHERE taskID = ?",
+          [id]
         );
+        notification.forEach(async (option) => {
+          await connection.execute(
+            "INSERT INTO taskNotification (taskID, notificationID) VALUES (?, ?)",
+            [id, option.id]
+          );
+        });
       });
 
       connection.release();
