@@ -123,7 +123,7 @@ const Task = (
       const jwtToken = localStorage.getItem('token');
       if(!jwtToken) throw new Error;
       await axios.patch(`http://localhost:3000/api/v1/tasks/${$taskId}`, 
-      { category: category.id, location, notification, repeat, notes },
+      { category: category.id, location, notification, notes },
       { headers: {Authorization: `Bearer ${jwtToken}`},});
       $fetchAllTasks();
     } catch (error) {
@@ -179,63 +179,84 @@ const Task = (
             <Time>&nbsp;&nbsp;{startingTime} - {endingTime}</Time>
           </InfoContainer>
           {!isEditing &&
-          <>
-            {category && 
-            <InfoContainer $active={isActive}>
-              <TbCategory size={20} />
-              <Info>&nbsp;&nbsp;{category.name}</Info>
-            </InfoContainer>}
-            {location &&
-            <InfoContainer $active={isActive}>
-              <HiOutlineLocationMarker size={20} />
-              <Info>&nbsp;&nbsp;{location}</Info>
-            </InfoContainer>}
-            {notification &&
-            <InfoContainer $active={isActive}>
-              <MdOutlineNotifications size={21}/>
-              <Info>&nbsp;&nbsp;{notification.map((option) => option.name).join(', ')}</Info>
-            </InfoContainer>}
-            {repeat &&
-            <InfoContainer $active={isActive}>
-              <TbRepeat size={20}/>
-              <Info>&nbsp;&nbsp;
-                {repeat.map((option) => option.name).join(', ')}
-              </Info>
-            </InfoContainer>}
-            {notes && 
-            <InfoContainer $active={isActive}>
-              <MdNotes size={20} />
-              <Info>&nbsp;&nbsp;{notes}</Info>
-            </InfoContainer>}
-          </>}
+            <>
+              {category && 
+              <InfoContainer $active={isActive}>
+                <TbCategory size={20} />
+                <Info>&nbsp;&nbsp;{category.name}</Info>
+              </InfoContainer>}
+            </>
+          }
+          {!isEditing &&
+            <>
+              {location &&
+              <InfoContainer $active={isActive}>
+                <HiOutlineLocationMarker size={20} />
+                <Info>&nbsp;&nbsp;{location}</Info>
+              </InfoContainer>}
+            </>
+          }
+          {!isEditing &&
+            <>
+              {notification &&
+              <InfoContainer $active={isActive}>
+                <MdOutlineNotifications size={21}/>
+                <Info>&nbsp;&nbsp;{notification.map((option) => option.name).join(', ')}</Info>
+              </InfoContainer>}
+            </>
+          }
+          {repeat &&
+          <InfoContainer $active={isActive}>
+            <TbRepeat size={20}/>
+            <Info>&nbsp;&nbsp;
+              {repeat.map((option) => option.name).join(', ')}
+            </Info>
+          </InfoContainer>}
+          {!isEditing &&
+            <>
+              {notes && 
+              <InfoContainer $active={isActive}>
+                <MdNotes size={20} />
+                <Info>&nbsp;&nbsp;{notes}</Info>
+              </InfoContainer>}
+            </>
+          }
           {isEditing &&
-          <>
-            <InfoContainer $active={isActive} $isEditing={isEditing}>
-              <TbCategory size={20} />
-              <>&nbsp;&nbsp;</>
-              <SelectorWithAdd $selectedOption={category} $options={$categoryOptions} $onAdd={$createCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
-            </InfoContainer>
-            <InfoContainer $active={isActive} $isEditing={isEditing}>
-              <HiOutlineLocationMarker size={20} />
-              <>&nbsp;&nbsp;</>
-              <InputField type="location" value={location ? location : ""} onChange={(e) => updateLocation(e.target.value)} placeholder='Location' />
-            </InfoContainer>
-            <InfoContainer $active={isActive} $isEditing={isEditing}>
-              <MdOutlineNotifications size={21}/>
-              <>&nbsp;&nbsp;</>
-              <MultiSelector $defaultOption={$notificationDefaultOption} $options={$notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)} $selectedOptions={notification}></MultiSelector>
-            </InfoContainer>
-            <InfoContainer $active={isActive} $isEditing={isEditing}>
-              <TbRepeat size={20}/>
-              <>&nbsp;&nbsp;</>
-              <MultiSelector $defaultOption={$repeatDefaultOption} $options={$repeatOptions} $updateSelectedOptions={(newValue) => updateRepeat(newValue)} $selectedOptions={repeat}></MultiSelector>
-            </InfoContainer>
-            <InfoContainer $active={isActive} $isEditing={isEditing}>
-              <MdNotes size={20} />
-              <>&nbsp;&nbsp;</>
-              <NotesInputField value={notes ? notes : ""} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
-            </InfoContainer>
-          </>}
+            <>
+              <InfoContainer $active={isActive} $isEditing={isEditing}>
+                <TbCategory size={20} />
+                <>&nbsp;&nbsp;</>
+                <SelectorWithAdd $selectedOption={category} $options={$categoryOptions} $onAdd={$createCategory} $updateSelectedOption={(newValue) => updateCategory(newValue)}/>
+              </InfoContainer>
+            </>
+          }
+          {isEditing &&
+            <>
+              <InfoContainer $active={isActive} $isEditing={isEditing}>
+                <HiOutlineLocationMarker size={20} />
+                <>&nbsp;&nbsp;</>
+                <InputField type="location" value={location ? location : ""} onChange={(e) => updateLocation(e.target.value)} placeholder='Location' />
+              </InfoContainer>
+              </>
+          }
+          {isEditing &&
+            <>
+              <InfoContainer $active={isActive} $isEditing={isEditing}>
+                <MdOutlineNotifications size={21}/>
+                <>&nbsp;&nbsp;</>
+                <MultiSelector $defaultOption={$notificationDefaultOption} $options={$notificationOptions} $updateSelectedOptions={(newValue) => updateNotification(newValue)} $selectedOptions={notification}></MultiSelector>
+              </InfoContainer>
+            </>
+          }
+          {isEditing &&
+            <>
+              <InfoContainer $active={isActive} $isEditing={isEditing}>
+                <MdNotes size={20} />
+                <>&nbsp;&nbsp;</>
+                <NotesInputField value={notes ? notes : ""} onChange={(e) => updateNotes(e.target.value)} placeholder='Notes' />
+              </InfoContainer>
+            </>
+          }
 
           <ButtonContainer $active={isActive} $isEditing={isEditing}>
             {isActive && !isEditing &&
