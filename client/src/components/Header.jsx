@@ -13,9 +13,9 @@ const Header = () => {
         <Navbar>
           <NavbarLink to='/tasks'>Tasks</NavbarLink>
           <NavbarLink to='/journal'>Journal</NavbarLink>
-          {/* <NavbarLink to='/schedule'>Schedule</NavbarLink>
-          <NavbarLink to='/finances'>Finances</NavbarLink>
-          <NavbarLink to='/profile'>Profile</NavbarLink> */}
+          {/* <NavbarLink to='/schedule'>Schedule</NavbarLink>*/}
+          <NavbarLink to='/statistics'>Statistics</NavbarLink>
+          {/* <NavbarLink to='/profile'>Profile</NavbarLink> */}
           <NavbarLink to='/logout'>Log out</NavbarLink>
         </Navbar>
       </Container>

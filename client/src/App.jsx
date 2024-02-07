@@ -8,6 +8,7 @@ import Tasks from './pages/Tasks'
 import axios from 'axios';
 import Journal from './pages/Journal'
 import PropTypes from 'prop-types'
+import Statistics from './pages/Statistics'
 
 
 const App = () => {
@@ -69,6 +70,7 @@ const App = () => {
         <Route exact path='/tasks' element={isLoggedIn ? <Tasks /> : <Navigate to="/login" />} />
         <Route exact path='/journal' element={isLoggedIn ? <Journal /> : <Navigate to="/login" />} />
         <Route exact path='/logout' element={ <LogOutComponent $logOut={logOut}/>} />
+        <Route exact path='/statistics' element={isLoggedIn ? <Statistics /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   )

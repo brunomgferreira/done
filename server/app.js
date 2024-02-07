@@ -22,6 +22,7 @@ const notificationsRoutes = require("./components/tasks/notifications/notificati
 const repeatIntervalsRoutes = require("./components/tasks/repeatIntervals/repeatIntervalsRoutes");
 const categoriesRoutes = require("./components/tasks/categories/categoriesRoutes");
 const journalRoutes = require("./components/journal/journalRoutes");
+const statsRoutes = require("./components/statistics/statsRoutes");
 const authenticateUser = require("./middleware/authenticateUser");
 // const taskRoutes = require('./components/task/taskRoutes');
 
@@ -63,6 +64,7 @@ app.use("/api/v1/journal", authenticateUser, journalRoutes);
 app.use("/api/v1/tasksNotifications", authenticateUser, notificationsRoutes);
 app.use("/api/v1/tasksRepeat", authenticateUser, repeatIntervalsRoutes);
 app.use("/api/v1/tasksCategory", authenticateUser, categoriesRoutes);
+app.use("/api/v1/statistics", authenticateUser, statsRoutes);
 app.get("/api/v1/auth", authenticateUser, (req, res) => {
   res.status(StatusCodes.OK).json({ message: "Authentication successful" });
 });
