@@ -901,4 +901,5 @@ module.exports = {
   getNumberOfTasksByDay,
   getNumberOfDoneTasksByDay,
   getNumberOfOverdueTasks,
+  createAllRepeatedTasks,
 };

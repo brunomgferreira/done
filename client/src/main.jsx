@@ -18,8 +18,22 @@ Notification.requestPermission(function (permission) {
   // If the user accepts, let's create a notification
   if (permission === "granted") {
     TimerWorker.postMessage({name:"notification"});
+    registerSW();
   }
 });
+
+const registerSW = async () => {
+  try {
+    if(!('serviceWorker' in navigator)) {
+      throw new Error("No support for service worker!");
+    }
+    const registration = await navigator.serviceWorker.register('/src/workers/notifications-worker.js');
+    return registration;
+  } catch (error) {
+   console.log(error); 
+  }
+};
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
