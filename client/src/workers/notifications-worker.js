@@ -14,13 +14,16 @@ const urlBase64ToUint8Array = (base64String) => {
   return outputArray;
 };
 
-const saveSubscription = async (subscription) => {
+const saveSubscription = async (subscription, jwtToken) => {
   try {
     const response = await fetch(
-      "http://localhost:3000/api/v1/notifications/subscription/save",
+      "http://localhost:3000/api/v1/notifications/subscription",
       {
         method: "post",
-        headers: { "Content-type": "application/json" },
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
         body: JSON.stringify(subscription),
       }
     );
@@ -31,16 +34,18 @@ const saveSubscription = async (subscription) => {
   }
 };
 
-self.addEventListener("activate", async (e) => {
-  const subscription = await self.registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(
-      "BA38HDLOIcEcSqRso4JvhxRUYKKq7l1Thf8ON3ffpnfRyrFZNG_1zBPGfMcSno83j2_770Eyy_QcyIhHCdvbB-U"
-    ),
-  });
-
-  const response = await saveSubscription(subscription);
-  console.log(response);
+self.addEventListener("message", async (e) => {
+  if (e.data.action === "saveSubscription") {
+    const jwtToken = e.data.jwtToken;
+    const subscription = await self.registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(
+        "BA38HDLOIcEcSqRso4JvhxRUYKKq7l1Thf8ON3ffpnfRyrFZNG_1zBPGfMcSno83j2_770Eyy_QcyIhHCdvbB-U"
+      ),
+    });
+    const response = await saveSubscription(subscription, jwtToken);
+    console.log(response);
+  }
 });
 
 self.addEventListener("push", (e) => {

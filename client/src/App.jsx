@@ -11,7 +11,7 @@ import PropTypes from 'prop-types'
 import Statistics from './pages/Statistics'
 
 
-const App = () => {
+const App = ({ $requestNotificationPermission }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -67,14 +67,14 @@ const App = () => {
         <Route exact path='/' element={<Home />} />
         <Route exact path='/register' element={!isLoggedIn ? <Register /> : <Navigate to="/tasks" />}/>
         <Route exact path='/login' element={!isLoggedIn ? <Login /> : <Navigate to="/tasks" />} />
-        <Route exact path='/tasks' element={isLoggedIn ? <Tasks /> : <Navigate to="/login" />} />
+        <Route exact path='/tasks' element={isLoggedIn ? <Tasks $requestNotificationPermission={() => $requestNotificationPermission()} /> : <Navigate to="/login" />} />
         <Route exact path='/journal' element={isLoggedIn ? <Journal /> : <Navigate to="/login" />} />
         <Route exact path='/logout' element={ <LogOutComponent $logOut={logOut}/>} />
         <Route exact path='/statistics' element={isLoggedIn ? <Statistics /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   )
-}
+};
 
 
 const LogOutComponent = ({ $logOut }) => {
@@ -82,10 +82,14 @@ const LogOutComponent = ({ $logOut }) => {
     $logOut();
   }, [$logOut]);
   return <Navigate to='/' />;
-}
+};
 
 LogOutComponent.propTypes = {
   $logOut: PropTypes.func,
-}
+};
+
+App.propTypes = {
+  $requestNotificationPermission: PropTypes.func,
+};
 
 export default App

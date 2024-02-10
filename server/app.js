@@ -74,7 +74,7 @@ app.use(
 app.use("/api/v1/tasksRepeat", authenticateUser, repeatIntervalsRoutes);
 app.use("/api/v1/tasksCategory", authenticateUser, categoriesRoutes);
 app.use("/api/v1/statistics", authenticateUser, statsRoutes);
-app.use("/api/v1/notifications", notificationsRoutes);
+app.use("/api/v1/notifications", authenticateUser, notificationsRoutes);
 
 app.get("/api/v1/auth", authenticateUser, (req, res) => {
   res.status(StatusCodes.OK).json({ message: "Authentication successful" });
