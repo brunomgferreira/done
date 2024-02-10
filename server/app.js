@@ -1,6 +1,13 @@
 require("dotenv").config();
 require("express-async-errors");
 const { StatusCodes } = require("http-status-codes");
+const pool = require("./db/dbConnect");
+const {
+  createAllRepeatedTasks,
+} = require("./components/tasks/tasksController");
+const {
+  sendNotifications,
+} = require("./components/notifications/notificationsController");
 
 // extra security packages
 const helmet = require("helmet");
@@ -18,11 +25,12 @@ const app = express();
 // routers
 const userRoutes = require("./components/user/userRoutes");
 const tasksRoutes = require("./components/tasks/tasksRoutes");
-const notificationsRoutes = require("./components/tasks/notifications/notificationsRoutes");
+const tasksNotificationsRoutes = require("./components/tasks/notifications/notificationsRoutes");
 const repeatIntervalsRoutes = require("./components/tasks/repeatIntervals/repeatIntervalsRoutes");
 const categoriesRoutes = require("./components/tasks/categories/categoriesRoutes");
 const journalRoutes = require("./components/journal/journalRoutes");
 const statsRoutes = require("./components/statistics/statsRoutes");
+const notificationsRoutes = require("./components/notifications/notificationsRoutes");
 const authenticateUser = require("./middleware/authenticateUser");
 // const taskRoutes = require('./components/task/taskRoutes');
 
@@ -61,21 +69,62 @@ app.use(express.json());
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/tasks", authenticateUser, tasksRoutes);
 app.use("/api/v1/journal", authenticateUser, journalRoutes);
-app.use("/api/v1/tasksNotifications", authenticateUser, notificationsRoutes);
+app.use(
+  "/api/v1/tasksNotifications",
+  authenticateUser,
+  tasksNotificationsRoutes
+);
 app.use("/api/v1/tasksRepeat", authenticateUser, repeatIntervalsRoutes);
 app.use("/api/v1/tasksCategory", authenticateUser, categoriesRoutes);
 app.use("/api/v1/statistics", authenticateUser, statsRoutes);
+app.use("/api/v1/notifications", authenticateUser, notificationsRoutes);
+
 app.get("/api/v1/auth", authenticateUser, (req, res) => {
   res.status(StatusCodes.OK).json({ message: "Authentication successful" });
 });
 
 const port = process.env.PORT || 3000;
 
+const checkDayChange = async () => {
+  const currentDate = new Date();
+  const currentDay = currentDate.getDate();
+  const currentHour = currentDate.getHours();
+  const hourBeforeDayChange = 16;
+
+  // Calculate the previous day
+  const previousDate = new Date(currentDate);
+  previousDate.setDate(currentDate.getDate() - 1);
+  const previousDay = previousDate.getDate();
+
+  if (
+    (currentHour >= hourBeforeDayChange &&
+      currentDay !== checkDayChange.lastDay) ||
+    (currentDay !== checkDayChange.lastDay &&
+      previousDay !== checkDayChange.lastDay)
+  ) {
+    try {
+      const connection = await pool.getConnection();
+      const [users] = await connection.execute("SELECT id FROM user");
+
+      for (const user of users) {
+        await createAllRepeatedTasks(user.id, previousDay);
+      }
+
+      checkDayChange.lastDay = currentDay;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
+
 const start = async () => {
   try {
     app.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
+    checkDayChange.lastDay = new Date().getDate();
+    setInterval(sendNotifications, 60000);
+    setInterval(checkDayChange, 60000);
   } catch (error) {
     console.log(error);
   }

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Task from '../components/elements/Task'
 import Button from '../components/elements/Button'
 import TasksStatsContainer from '../components/elements/TasksStatsContainer'
+import PropTypes from 'prop-types'
 import { FiCheckCircle, FiFilter, FiPlus } from 'react-icons/fi'
 import { HiOutlineTrash } from 'react-icons/hi2'
 import { IoSettingsOutline, IoCalendarOutline } from "react-icons/io5"
@@ -14,7 +15,7 @@ import Filter from '../components/elements/Filter'
 import DatePicker from 'react-date-picker'
 import "../components/elements/DatePicker.css"
 
-const Tasks = () => {
+const Tasks = ({ $requestNotificationPermission }) => {
 
     const [expandedTask, setExpandedTask] = useState(null);   
     const [openAddTaskModal, setOpenAddTaskModal] = useState(false);
@@ -287,6 +288,7 @@ const Tasks = () => {
     useEffect(() => {
         fetchAllTasks();
         fetchCategoryOptions();
+        $requestNotificationPermission();
     }, [])
 
     useEffect(() => {
@@ -434,6 +436,10 @@ const Tasks = () => {
             />
         </MainWrapper>
     </>)
+}
+
+Tasks.propTypes = {
+    $requestNotificationPermission: PropTypes.func,
 }
 
 const SecondHeaderWrapper = styled.div`

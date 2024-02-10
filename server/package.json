@@ -24,6 +24,7 @@
     "mysql2": "^3.6.5",
     "rate-limiter": "^0.2.0",
     "swagger-ui-express": "^5.0.0",
+    "web-push": "^3.6.7",
     "xss": "^1.0.14"
   },
   "devDependencies": {
