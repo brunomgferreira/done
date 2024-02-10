@@ -89,7 +89,7 @@ const checkDayChange = async () => {
   const currentDate = new Date();
   const currentDay = currentDate.getDate();
   const currentHour = currentDate.getHours();
-  const hourBeforeDayChange = 16;
+  const hourBeforeDayChange = 0;
 
   // Calculate the previous day
   const previousDate = new Date(currentDate);
@@ -105,9 +105,14 @@ const checkDayChange = async () => {
     try {
       const connection = await pool.getConnection();
       const [users] = await connection.execute("SELECT id FROM user");
+      const tommorrowDate = new Date(currentDate);
+      tommorrowDate.setDate(tommorrowDate.getDate() + 1);
+      const twoDaysAheadDate = new Date(currentDate);
+      twoDaysAheadDate.setDate(twoDaysAheadDate.getDate() + 2);
 
       for (const user of users) {
-        await createAllRepeatedTasks(user.id, previousDay);
+        await createAllRepeatedTasks(user.id, tommorrowDate);
+        await createAllRepeatedTasks(user.id, twoDaysAheadDate);
       }
 
       checkDayChange.lastDay = currentDay;
@@ -122,7 +127,9 @@ const start = async () => {
     app.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
-    checkDayChange.lastDay = new Date().getDate();
+    const lastDay = new Date();
+    lastDay.setDate(lastDay.getDate() - 1);
+    checkDayChange.lastDay = lastDay.getDate();
     setInterval(sendNotifications, 60000);
     setInterval(checkDayChange, 60000);
   } catch (error) {

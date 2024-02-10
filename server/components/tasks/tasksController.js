@@ -497,6 +497,14 @@ const createTask = async (req, res) => {
       );
     });
 
+    const oneDayAheadDate = new Date(date);
+    oneDayAheadDate.setDate(oneDayAheadDate.getDate() + 1);
+    const twoDaysAheadDate = new Date(date);
+    twoDaysAheadDate.setDate(twoDaysAheadDate.getDate() + 2);
+
+    await createAllRepeatedTasks(userId, oneDayAheadDate);
+    await createAllRepeatedTasks(userId, twoDaysAheadDate);
+
     connection.release();
 
     res.status(StatusCodes.CREATED).json(taskId);
