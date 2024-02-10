@@ -43,11 +43,10 @@ self.addEventListener("message", async (e) => {
         "BA38HDLOIcEcSqRso4JvhxRUYKKq7l1Thf8ON3ffpnfRyrFZNG_1zBPGfMcSno83j2_770Eyy_QcyIhHCdvbB-U"
       ),
     });
-    const response = await saveSubscription(subscription, jwtToken);
-    console.log(response);
+    await saveSubscription(subscription, jwtToken);
   }
 });
 
 self.addEventListener("push", (e) => {
-  self.registration.showNotification("Wohoo!!", { body: e.data.text() });
+  self.registration.showNotification("Done.", { body: e.data.text() });
 });

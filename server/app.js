@@ -5,6 +5,9 @@ const pool = require("./db/dbConnect");
 const {
   createAllRepeatedTasks,
 } = require("./components/tasks/tasksController");
+const {
+  sendNotifications,
+} = require("./components/notifications/notificationsController");
 
 // extra security packages
 const helmet = require("helmet");
@@ -120,6 +123,7 @@ const start = async () => {
       console.log(`Server is listening on port ${port}...`)
     );
     checkDayChange.lastDay = new Date().getDate();
+    setInterval(sendNotifications, 60000);
     setInterval(checkDayChange, 60000);
   } catch (error) {
     console.log(error);
