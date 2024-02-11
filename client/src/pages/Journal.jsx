@@ -398,6 +398,7 @@ const SecondHeader = styled.div`
 const Navbar = styled.div`
     display: flex;
     flex-direction: row;
+    overflow: scroll;
     justify-content: space-between;
     padding-bottom: 0.4rem;
     padding-top: 0.4rem;
