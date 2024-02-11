@@ -289,6 +289,11 @@ const Task = (
                   $fontColor={"primary"}
                   $fontWeight={"bold"}
                   $animation="scale"
+                  $onClick={() => {
+                    window.location.href = 
+                    `mailto:?subject=${encodeURIComponent(taskName + "-" + category.name)}&body=${
+                      encodeURIComponent(date + " " + startingTime + "-" + endingTime)}`;
+                  }}
                 ></Button>
                 <Button
                   $content={<>Delete<span>&nbsp;&nbsp;</span><HiOutlineTrash size={20} /></>}
