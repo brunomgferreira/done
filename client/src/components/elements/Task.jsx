@@ -147,7 +147,7 @@ const Task = (
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-    useEffect(() => {
+  useEffect(() => {
         const handleResize = () => {
           if (containerRef.current) setContainerWidth(containerRef.current.offsetWidth);
         };
@@ -155,6 +155,9 @@ const Task = (
         return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    setContainerWidth(containerRef.current.offsetWidth);
+  }, [containerRef])
 
   return (
     <TaskContainer $isOverdue={$isOverdue} ref={containerRef}>
