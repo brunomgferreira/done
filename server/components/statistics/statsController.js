@@ -15,7 +15,7 @@ const getAverageOverdueTime = async (req, res) => {
 
     const connection = await pool.getConnection();
     const [result] = await connection.execute(
-      "SELECT AVG(UNIX_TIMESTAMP(DATE(task.dueDate)) - UNIX_TIMESTAMP(DATE(task.finishDate)) + TIMESTAMPDIFF(SECOND, TIME(task.dueTime), TIME(task.finishTime))) AS averageOverdueTime " +
+      "SELECT AVG(UNIX_TIMESTAMP(DATE(task.finishDate) - UNIX_TIMESTAMP(DATE(task.dueDate))) + TIMESTAMPDIFF(SECOND, TIME(task.finishTime), TIME(task.dueTime))) AS averageOverdueTime " +
         "FROM task " +
         "WHERE task.finished = true " +
         "AND task.user = ? " +
