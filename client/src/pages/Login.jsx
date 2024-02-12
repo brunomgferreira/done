@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
+import { styled, css } from 'styled-components';
 import Button from '../components/elements/Button';
-import { FcGoogle } from 'react-icons/fc';
-import { BsFacebook } from 'react-icons/bs';
+import { BsFacebook, BsGoogle } from 'react-icons/bs';
 import axios from 'axios';
 import InputField from '../components/elements/InputField';
 import { Link } from 'react-router-dom'
@@ -116,9 +115,19 @@ const Login = () => {
     }
   }
 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-      <LoginWrapper>
-        <LoginContainer>
+      <LoginWrapper $windowWidth={windowWidth}>
+        <LoginContainer $windowWidth={windowWidth}>
           <LoginForm onSubmit={handleSubmit}>
             <Title>Sign in</Title>
             <SingleInputContainer>
@@ -127,10 +136,6 @@ const Login = () => {
             <SingleInputContainer>
               <InputField type="password" name="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} $err={error}/>
             </SingleInputContainer>
-            <RememberMeContainer>
-              <input type="checkbox" name="remember-me"/>
-              <label>Remember me</label>
-            </RememberMeContainer>
             <SubmitButtonContainer>
               <Button
                 $content="Sign in"
@@ -147,10 +152,10 @@ const Login = () => {
             </div>
             <OtherLoginOptions>
               <OtherLoginOption href="#">
-                <LinkSpan><BsFacebook /> Facebook</LinkSpan>
+                <OtherLoginOptionLinkSpan><BsFacebook /> Facebook</OtherLoginOptionLinkSpan>
               </OtherLoginOption>
               <OtherLoginOption href="#">
-                <LinkSpan><FcGoogle /> Google</LinkSpan>
+                <OtherLoginOptionLinkSpan><BsGoogle /> Google</OtherLoginOptionLinkSpan>
               </OtherLoginOption>
             </OtherLoginOptions>
             <SignUpContainer>
@@ -175,6 +180,12 @@ const LoginWrapper = styled.div`
   left: 0;
   height:100%;
   width: 100%;
+
+  ${({ $windowWidth }) =>
+    $windowWidth < 600 &&
+    css`
+      background-color: white;
+    `}
 `
 
 const LoginContainer = styled.div`
@@ -184,6 +195,12 @@ const LoginContainer = styled.div`
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.08);
   width: 60rem;
   overflow: hidden;
+
+  ${({ $windowWidth }) =>
+    $windowWidth < 600 &&
+    css`
+      box-shadow: 0px 0px 0px transparent;
+    `}
 `
 
 const LoginForm = styled.form`
@@ -207,17 +224,11 @@ const SubmitButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 3rem;
 `
 
 const ErrorSpan = styled.span`
   color: red;
-`
-
-const RememberMeContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: start;
-  gap: 1rem;
 `
 
 const OtherLoginOptions = styled.div`
@@ -232,6 +243,14 @@ const OtherLoginOption = styled.a`
   gap: 5px;
   height: 20px;
   font-size: 2rem;
+  cursor: default;
+`
+
+const OtherLoginOptionLinkSpan = styled.span`
+  color: #a4a4a4;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 `
 
 const SignUpContainer = styled.div`

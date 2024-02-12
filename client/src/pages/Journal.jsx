@@ -398,7 +398,10 @@ const SecondHeader = styled.div`
 const Navbar = styled.div`
     display: flex;
     flex-direction: row;
+    overflow: scroll;
     justify-content: space-between;
+    padding-bottom: 0.4rem;
+    padding-top: 0.4rem;
     gap: 4rem;
 `
 
@@ -414,6 +417,8 @@ const MainWrapper = styled.main`
     gap: 1rem;
     height: 100%;
     width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
 `
 
 const Container = styled.div`
@@ -447,6 +452,7 @@ const ButtonContainerLeft = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
 `
 
@@ -454,6 +460,7 @@ const ButtonContainerRight = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
 `
 

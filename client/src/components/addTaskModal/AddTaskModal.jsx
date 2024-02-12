@@ -126,6 +126,16 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen, $fetchAllTasks, $createCate
         });
     };
 
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
         <AddTaskContext.Provider
             value={{name, updateName,
@@ -137,8 +147,8 @@ const AddTaskModal = ({ $defaultName, $updateIsOpen, $fetchAllTasks, $createCate
                 date, updateDate,
                 startingTime, updateStartingTime,
                 endingTime, updateEndingTime}}>
-            <ModalWrapper>
-                <ModalContainer ref={modalContainerRef}>
+            <ModalWrapper $windowWidth={windowWidth}>
+                <ModalContainer ref={modalContainerRef} $windowWidth={windowWidth}>
                     <Main>
                         <InfoContainer>
                             <FiCheckCircle size={18} />
@@ -209,24 +219,37 @@ AddTaskModal.propTypes = {
 
 const ModalWrapper = styled.div`
     position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.6);;
     padding: 20px;
     z-index: 100;
+
+    ${({ $windowWidth }) =>
+    $windowWidth < 425 &&
+    css`
+      background-color: white;
+    `}
 `
 
 const ModalContainer = styled.div`
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background-color: white;
     padding: 20px;
     z-index: 2;
     border-radius: 3rem;
     box-shadow: 0 4px 8px 0 ${({theme}) => theme.colors.shadow.main};
     width: 40vw;
+    min-width: 55rem;
+
+    ${({ $windowWidth }) =>
+    $windowWidth < 425 &&
+    css`
+      box-shadow: 0 4px 8px 0 transparent;
+    `}
 `
 
 // Modal content

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { FiCheckCircle, FiFilter, FiAlertTriangle, FiAlertCircle, FiList } from 'react-icons/fi'
 import { FaListCheck } from "react-icons/fa6";
 import { IoStatsChart, IoTimeOutline, IoList } from 'react-icons/io5'
-import styled from 'styled-components'
+import { styled, css } from 'styled-components'
 import Button from './Button'
 import CountDownTimer from './CountDownTimer';
 import axios from 'axios';
@@ -100,14 +100,24 @@ const TasksStatsContainer = ({ $numberOfTasks, $numberOfDoneTasks, $numberOfOver
         else updateSelectedTab("todayTasks");
     }, [])
 
+
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 return (
     <TasksStatsWrapper>
         <Navbar>
-            <>
-                {selectedTab === "todayTasks" && <h1>Today tasks:</h1>}
-                {selectedTab === "overdueTasks" && <h1>Overdue tasks:</h1>}
-                {selectedTab === "pomodoroTimer" && <h1>Pomodoro timer:</h1>}
-            </>
+            <Title $windowWidth={windowWidth}>
+                {selectedTab === "todayTasks" ? "Today tasks:" : 
+                selectedTab === "overdueTasks" ? "Overdue tasks:" : "Pomodoro timer:"}
+            </Title>
             <ButtonContainer>
                 <Button
                     $content={<IoList size={24}/>}
@@ -160,8 +170,8 @@ return (
                     $content={"Pomodoro"}
                     $buttonStyle="text"
                     $animation="scale"
-                    $color={"transparent"} //"white" "transparent"
-                    $fontColor={timerStatus === "focus" ? "white" : "grey"} //"primary" "white"
+                    $color={"transparent"}
+                    $fontColor={timerStatus === "focus" ? "white" : "grey"}
                     $borderColor="white"
                     $onClick={() => updateTimerStatus("focus")}
                 ></Button>
@@ -169,8 +179,8 @@ return (
                     $content={"Short Break"}
                     $buttonStyle="text"
                     $animation="scale"
-                    $color={"transparent"} //"white" "transparent"
-                    $fontColor={timerStatus === "shortBreak" ? "white" : "grey"} //"primary" "white"
+                    $color={"transparent"}
+                    $fontColor={timerStatus === "shortBreak" ? "white" : "grey"}
                     $borderColor="white"
                     $onClick={() => updateTimerStatus("shortBreak")}
                 ></Button>
@@ -178,8 +188,8 @@ return (
                     $content={"Long Break"}
                     $buttonStyle="text"
                     $animation="scale"
-                    $color={"transparent"} //"white" "transparent"
-                    $fontColor={timerStatus === "longBreak" ? "white" : "grey"} //"primary" "white"
+                    $color={"transparent"}
+                    $fontColor={timerStatus === "longBreak" ? "white" : "grey"}
                     $borderColor="white"
                     $onClick={() => updateTimerStatus("longBreak")}
                 ></Button>
@@ -245,8 +255,19 @@ const TasksStatsWrapper = styled.div`
 const Navbar = styled.div`
     display: flex;
     flex-direction: row;
+    align-items: center;
     justify-content: space-between;
     gap: 4rem;
+`
+
+const Title = styled.h1`
+    font-size: 2.4rem;
+    
+    ${({$windowWidth}) =>
+    $windowWidth < 400 &&
+    css`
+      font-size: 2rem;
+    `}
 `
 
 const ButtonContainer = styled.div`
@@ -310,7 +331,7 @@ const TimerButtonWrapper = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 2rem;
+    gap: 0.5rem;
 `
 
 export default TasksStatsContainer

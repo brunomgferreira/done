@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../components/Header';
-import styled from 'styled-components'
+import { styled, css } from 'styled-components'
 import axios from 'axios';
 import { StatusCodes } from 'http-status-codes'
 import Button from '../components/elements/Button';
@@ -475,6 +475,16 @@ const Statistics = () => {
     fetchNumberOfTasks();
   }, [selectedOption]);
 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
   return (
     <PageWrapper>
         <Header></Header>
@@ -534,40 +544,37 @@ const Statistics = () => {
           </SecondHeader>
         </SecondHeaderWrapper>
         <MainWrapper>
-          <UpperWrapper>
+          <UpperWrapper $windowWidth={windowWidth}>
             <UpperLeftWrapper>
-              <UpperLeftInnerWrapper>
-                <BlueContainer>
-                  <InfoNumber>{averageNumberOfTasks}</InfoNumber>
-                  <Quote>tasks {selectedOption == 0 ? "per day" : selectedOption == 1 ? "per week" : selectedOption == 2 ? "per month" : "per year"}</Quote> 
-                </BlueContainer>
-                <BlueContainer>
-                  <InfoNumber>{averageNumberOfTasksDone}</InfoNumber>
-                  <Quote>tasks done {selectedOption == 0 ? "per day" : selectedOption == 1 ? "per week" : selectedOption == 2 ? "per month" : "per year"}</Quote>
-                </BlueContainer>
-              </UpperLeftInnerWrapper>
-              <UpperLeftInnerWrapper>
-                <BlueContainer>
-                  <InfoNumber>{averageNumberOfTasksOverdue}</InfoNumber>
-                  <Quote>tasks overdue {selectedOption == 0 ? "per day" : selectedOption == 1 ? "per week" : selectedOption == 2 ? "per month" : "per year"}</Quote>
-                </BlueContainer>
-                <BlueContainer>
-                  <InfoNumber>{averageOverdueTime < 60 ? `${averageOverdueTime}s` : averageOverdueTime >= 3600 ? `${Math.floor(averageOverdueTime/3600)}:${Math.floor((averageOverdueTime % 3600) / 60)}h` : `${Math.floor(averageOverdueTime/60)}:${averageOverdueTime%60}min`}</InfoNumber>
-                  <Quote>average overdue time</Quote>
-                </BlueContainer>
-              </UpperLeftInnerWrapper>
+              <BlueContainer>
+                <InfoNumber>{averageNumberOfTasks}</InfoNumber>
+                <Quote>tasks {selectedOption == 0 ? "per day" : selectedOption == 1 ? "per week" : selectedOption == 2 ? "per month" : "per year"}</Quote> 
+              </BlueContainer>
+              <BlueContainer>
+                <InfoNumber>{averageNumberOfTasksDone}</InfoNumber>
+                <Quote>tasks done {selectedOption == 0 ? "per day" : selectedOption == 1 ? "per week" : selectedOption == 2 ? "per month" : "per year"}</Quote>
+              </BlueContainer>
+              <BlueContainer>
+                <InfoNumber>{averageNumberOfTasksOverdue}</InfoNumber>
+                <Quote>tasks overdue {selectedOption == 0 ? "per day" : selectedOption == 1 ? "per week" : selectedOption == 2 ? "per month" : "per year"}</Quote>
+              </BlueContainer>
+              <BlueContainer>
+                <InfoNumber>{averageOverdueTime < 60 ? `${averageOverdueTime}s` : averageOverdueTime >= 3600 ? `${Math.floor(averageOverdueTime/3600)}:${Math.floor((averageOverdueTime % 3600) / 60)}h` : `${Math.floor(averageOverdueTime/60)}:${averageOverdueTime%60}min`}</InfoNumber>
+                <Quote>average overdue time</Quote>
+              </BlueContainer>
             </UpperLeftWrapper>
             <UpperRightWrapper>
               <UpperRightLeftInnerWrapper>
-                <PieContainer>
+                <PieContainer $windowWidth={windowWidth}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" fill="#82ca9d" >
                       {pieChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
-                      </Pie>
-                      <Legend layout='vertical' align='right' verticalAlign='middle'/>
+                      </Pie>  
+                      {windowWidth > 1400 && <Legend layout='vertical' align='right' verticalAlign='middle'/>}
+                      {windowWidth <= 1400 && <Legend layout='horizontal' align='center' verticalAlign='bottom'/>}
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
@@ -598,7 +605,6 @@ const Statistics = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={numberOfTasks}
-                  st
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={false}/>
@@ -657,6 +663,8 @@ const MainWrapper = styled.main`
     margin-top: 2rem;
     margin-bottom: 2rem;
     gap: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
     height: 100%;
     width: 100%;
 `
@@ -668,21 +676,21 @@ const UpperWrapper = styled.div`
   flex: 0.3;
   width: 100%;
   height: 100%;
+
+  ${({ $windowWidth }) =>
+    $windowWidth <= 1400 &&
+    css`
+      flex-direction: column;
+      flex: 0.7;
+    `}
 `
 
 const UpperLeftWrapper = styled.div`
   gap: 1rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   flex: 0.4;
-  width: 100%;
-  height: 100%;
-`
-
-const UpperLeftInnerWrapper = styled.div`
-  gap: 1rem;
-  display: flex;
-  flex-direction: row;
   width: 100%;
   height: 100%;
 `
@@ -770,6 +778,12 @@ const PieContainer = styled.div`
   max-height: 70vh;
   width: 100%;
   background-color: white;
+
+  ${({ $windowWidth }) =>
+    $windowWidth <= 1400 &&
+    css`
+      padding-bottom: 1rem;
+  `}
 `
 
 const BarChartContainer = styled.div`

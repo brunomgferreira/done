@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
-import styled from 'styled-components'
+import { styled, css } from 'styled-components'
 import Task from '../components/elements/Task'
 import Button from '../components/elements/Button'
 import TasksStatsContainer from '../components/elements/TasksStatsContainer'
@@ -297,6 +297,16 @@ const Tasks = ({ $requestNotificationPermission }) => {
         getNumberOfOverdueTasks();
     }, [tasks])
 
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
     <>
         {openAddTaskModal && <AddTaskModal $createCategory={createCategory} $defaultName={newTaskName} $updateIsOpen={updateOpenAddTaskModal} $isOpen={openAddTaskModal} $fetchAllTasks={() => fetchAllTasks()}/>}
@@ -328,7 +338,7 @@ const Tasks = ({ $requestNotificationPermission }) => {
                 </Navbar>
             </SecondHeader>
         </SecondHeaderWrapper>
-        <MainWrapper>
+        <MainWrapper $windowWidth={windowWidth}>
             <LeftContainer>
                 <ButtonWrapper>
                     <LeftButtonContainer>
@@ -459,19 +469,31 @@ const SecondHeader = styled.div`
 const Navbar = styled.div`
     display: flex;
     flex-direction: row;
+    overflow: scroll;
     justify-content: space-between;
+    padding-bottom: 0.4rem;
+    padding-top: 0.4rem;
     gap: 4rem;
 `
 
 const MainWrapper = styled.main`
     max-width: ${({ theme }) => theme.widths.content};
+    padding-left: 2rem;
+    padding-right: 2rem;
     margin: 0 auto;
     display: flex;
+    flex-direction: row;
     align-items: column;
     justify-content: center;
     margin-top: 4rem;
     margin-bottom: 4rem;
     gap: 4rem;
+
+    ${({ $windowWidth }) =>
+    $windowWidth < 700 &&
+    css`
+      flex-direction: column-reverse;
+    `}
 `
 
 const FiltersContainer = styled.div`
@@ -514,6 +536,7 @@ const ButtonWrapper = styled.div`
 const LeftButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
+    flex: 0.8;
     // justify-content: space-between;
     gap: 1.5rem;
 `
@@ -524,7 +547,7 @@ const InputField = styled.input`
     border-bottom: 2px solid ${({theme}) => theme.colors.primary};
     border-radius: 0rem;
     padding-left: 2rem;
-    width: 40rem;
+    width: 100%;
     transition: 0.3s ease-in-out;
     transition: border-radius 0 ease-in-out;
 
@@ -537,6 +560,8 @@ const InputField = styled.input`
 const RightButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
+    justify-content: end;
+    flex: 0.2;
     // justify-content: space-between;
     gap: 1.5rem;
 `

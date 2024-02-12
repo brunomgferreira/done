@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
 import Button from './Button'
@@ -144,8 +144,20 @@ const Task = (
     setIsEditing($isEditing);
   }, [$taskName, $date, $startingTime, $endingTime, $category, $location, $notification, $repeat, $notes, isEditing, $isExpanded]);
   
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+    useEffect(() => {
+        const handleResize = () => {
+          if (containerRef.current) setContainerWidth(containerRef.current.offsetWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
   return (
-    <TaskContainer $isOverdue={$isOverdue}>
+    <TaskContainer $isOverdue={$isOverdue} ref={containerRef}>
       <Header $isExpanded={$isExpanded} $isEditing={isEditing} $active={isActive}>
         <LeftSide>
           {!$isExpanded &&
@@ -258,11 +270,11 @@ const Task = (
             </>
           }
 
-          <ButtonContainer $active={isActive} $isEditing={isEditing}>
+          <ButtonContainer $active={isActive} $isEditing={isEditing} $containerWidth={containerWidth}>
             {isActive && !isEditing &&
               <>
                 <Button 
-                  $content={<>Done<span>&nbsp;&nbsp;</span><FiCheckCircle size={20} /></>}
+                  $content={<>{containerWidth < 400 ? "" : <span>Done&nbsp;&nbsp;</span>}<FiCheckCircle size={20} /></>}
                   $buttonStyle="text"
                   $fontColor={"primary"}
                   $fontWeight={"bold"}
@@ -272,7 +284,7 @@ const Task = (
                     toggleExpand();}}
                 ></Button>
                 <Button
-                  $content={<>Edit<span>&nbsp;&nbsp;</span><FiEdit size={20} /></>}
+                  $content={<>{containerWidth < 400 ? "" : <span>Edit&nbsp;&nbsp;</span>}<FiEdit size={20} /></>}
                   $buttonStyle="text"
                   $fontColor={"primary"}
                   $fontWeight={"bold"}
@@ -284,7 +296,7 @@ const Task = (
             {!isEditing &&
               <>
                 <Button
-                  $content={<>Share<span>&nbsp;&nbsp;</span><FiShare2 size={20} /></>}
+                  $content={<>{containerWidth < 400 ? "" : <span>Share&nbsp;&nbsp;</span>}<FiShare2 size={20} /></>}
                   $buttonStyle="text"
                   $fontColor={"primary"}
                   $fontWeight={"bold"}
@@ -296,7 +308,7 @@ const Task = (
                   }}
                 ></Button>
                 <Button
-                  $content={<>Delete<span>&nbsp;&nbsp;</span><HiOutlineTrash size={20} /></>}
+                  $content={<>{containerWidth < 400 ? "" : <span>Delete&nbsp;&nbsp;</span>}<HiOutlineTrash size={20} /></>}
                   $buttonStyle="text"
                   $fontColor={"primary"}
                   $fontWeight={"bold"}
@@ -491,7 +503,6 @@ const ButtonContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 3rem;    
   /* padding: 0 2rem 0 2rem;  */
   width: 100%;
 
@@ -499,8 +510,26 @@ const ButtonContainer = styled.div`
     (!$active || $isEditing) && css`
       padding: 0 10rem 0 10rem; 
       padding-top: 2rem;
+      gap: 3rem;
     `
   }
+
+  ${({$isEditing}) => 
+    $isEditing && css`
+      border-top: none;
+    `
+  }
+
+
+  ${({$containerWidth}) => (
+    $containerWidth < 425 && css`
+      padding-left: 2rem;
+      padding-right: 2rem;
+      padding-top: 2rem;
+      justify-content: space-between;
+      align-items: center;
+    `
+  )}
 `
 
 const LeftSide = styled.div`

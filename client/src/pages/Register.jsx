@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import Button from '../components/elements/Button';
-import { FcGoogle } from 'react-icons/fc';
-import { BsFacebook } from 'react-icons/bs';
+import { BsFacebook, BsGoogle } from 'react-icons/bs';
 import axios from 'axios';
 import InputField from '../components/elements/InputField';
 import { Link } from 'react-router-dom';
@@ -61,9 +60,19 @@ const Register = () => {
     }
   }
 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <RegisterWrapper>
-        <RegisterContainer>
+    <RegisterWrapper $windowWidth={windowWidth}>
+        <RegisterContainer $windowWidth={windowWidth}>
           <RegisterForm onSubmit={handleSubmit}>
             <Title>Sign up</Title>
               <NameInputContainer>
@@ -100,10 +109,10 @@ const Register = () => {
             </div>
             <OtherRegisterOptions>
               <OtherRegisterOption href="#">
-                <LinkSpan><BsFacebook /> Facebook</LinkSpan>
+                <OtherRegisterOptionLinkSpan><BsFacebook /> Facebook</OtherRegisterOptionLinkSpan>
               </OtherRegisterOption>
               <OtherRegisterOption href="#">
-                <LinkSpan><FcGoogle /> Google</LinkSpan>
+                <OtherRegisterOptionLinkSpan><BsGoogle /> Google</OtherRegisterOptionLinkSpan>
               </OtherRegisterOption>
             </OtherRegisterOptions>
             <LoginContainer>
@@ -128,6 +137,12 @@ const RegisterWrapper = styled.div`
   left: 0;
   height:100%;
   width: 100%;
+
+  ${({ $windowWidth }) =>
+    $windowWidth < 600 &&
+    css`
+      background-color: white;
+    `}
 `
 
 const RegisterContainer = styled.div`
@@ -137,6 +152,12 @@ const RegisterContainer = styled.div`
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.08);
   width: 60rem;
   overflow: hidden;
+
+  ${({ $windowWidth }) =>
+    $windowWidth < 600 &&
+    css`
+      box-shadow: 0px 0px 0px transparent;
+    `}
 `
 
 const RegisterForm = styled.form`
@@ -187,6 +208,13 @@ const OtherRegisterOption = styled.a`
   gap: 5px;
   height: 20px;
   font-size: 2rem;
+`
+
+const OtherRegisterOptionLinkSpan = styled.span`
+  color: #a4a4a4;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 `
 
 const LoginContainer = styled.div`
